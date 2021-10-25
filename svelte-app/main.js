@@ -4,4 +4,10 @@ const app = new App({
 	target: document.body
 });
 
+function getAllLocations() {
+    var locations = [];
+    
+    return locations
+}
+
 export default app;
