@@ -1,7 +1,13 @@
+
 <script>
     import Navbar from "./Navbar.svelte"
+    import Menu from "./Menu.svelte"
+    
 </script>
 
-<Navbar />
+<Menu />
+<!--<Navbar />-->
 
+<!--
 <p>Hello, World!</p>
+-->
