@@ -1,9 +1,12 @@
+    
 <nav>
+
     <button>
       <span class="material-icons">menu</span>
     </button>
 
     <img src="logo.png" alt="logo"/>
+    
 </nav>
 
 <style>
