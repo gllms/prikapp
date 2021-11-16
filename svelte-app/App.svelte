@@ -1,12 +1,12 @@
-<p>Hello, World!</p>
-
 <script>
-    import * as myjson from './locations.json'
-    console.log(myjson);
+    let test = "hoi";
+    console.log(test);
 
-
-    export let getAllLocations;
-
-    getAllLocations();
+    fetch('./locations.json')
+        .then(response => response.json())
+        .then(data => test = data)
+        .catch(err => alert(err))
 </script>
 
+<p>Hello, World!</p>
+<p>{test[0].Place}</p>
