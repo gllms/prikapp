@@ -6,7 +6,6 @@
 </script>
 
 <Menu />
-<!--<Navbar />-->
 
 <!--
 <p>Hello, World!</p>
