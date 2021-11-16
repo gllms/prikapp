@@ -1,9 +1,11 @@
 <nav>
+
     <button>
       <span class="material-icons">menu</span>
     </button>
 
     <img src="logo.png" alt="logo"/>
+    
 </nav>
 
 <style>
@@ -12,14 +14,12 @@
         height: 48px;
         box-sizing: border-box;
     }
-
     button {
         background: none;
         border: none;
         color: white;
         padding: 12px;
     }
-
     img {
         position: absolute;
         height: 32px;
