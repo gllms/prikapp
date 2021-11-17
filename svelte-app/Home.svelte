@@ -1,9 +1,22 @@
 <script>
     import Card from "./Card.svelte";
 
-    export let cards = [];
+    let cards = [
+        {
+            Type: "video",
+            Title: "De weg van het bloed",
+            Description: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt",
+            Content: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt"
+        },
+        {
+            Type: "text",
+            Title: "In de wachtkamer",
+            Description: "Uitleg over wat je moet doen in de wachtkamer",
+            Content: "In de wachtkamer moet je wachten."
+        }
+    ];
+
     let currentCard = null;
-    $: console.log(currentCard);
 </script>
 
 <div class="cards">
