@@ -50,11 +50,6 @@ namespace prikapp
                 {
                     context.Response.Headers.Add("Content-Type", "text/html");
                     await context.Response.WriteAsync(System.IO.File.ReadAllText(@"./wwwroot/index.html"));
-                    await context.Response.WriteAsync("lol");
-                });
-                endpoints.MapGet("/home", async context =>
-                {
-                    await context.Response.WriteAsync("home!");
                 });
                 endpoints.MapGet("/locations.json", async context =>
                 {
@@ -66,6 +61,11 @@ namespace prikapp
 
                     context.Response.Headers.Add("Content-Type", "application/json");
                     await context.Response.WriteAsync(jsonString);
+                });
+                endpoints.MapGet("/{**unknown}", async context =>
+                {
+                    context.Response.Headers.Add("Content-Type", "text/html");
+                    await context.Response.WriteAsync(System.IO.File.ReadAllText(@"./wwwroot/index.html"));
                 });
             });
         }
