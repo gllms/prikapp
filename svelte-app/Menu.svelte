@@ -3,6 +3,7 @@
     
     function handleNav() {
         navOpen = !navOpen;
+        document.body.style.overflow = navOpen ? "hidden" : "auto";
     }
     
     function handleNavWithKey(e) {
@@ -33,16 +34,20 @@
         <p>Menu</p>
     </div>
     <div class="bottom">
-        <a href="#b">Instellingen</a>
-        <a href="#c">Inloggen</a>
-        <a href="#d">Locaties</a>
+        <a href="#d"><span class="material-icons">place</span>Locaties</a>
+        <a href="#c"><span class="material-icons">person</span>Inloggen</a>
+        <a href="#b"><span class="material-icons">settings</span>Instellingen</a>
     </div>
 </div>
 
 <style>
     nav {
-        background: #e7334c;
+        position: fixed;
+        background: rgba(231, 51, 76, .8);
+        backdrop-filter: blur(10px);
         height: 48px;
+        width: 100%;
+        top: 0;
         box-sizing: border-box;
     }
 
@@ -69,8 +74,8 @@
         position: fixed;
         z-index: 9999;
         top: 0;
-        background-color: black;
-        opacity: 0.7;
+        background-color: rgba(0, 0, 0, .8);
+        backdrop-filter: blur(10px);
         transition: 0.5s;
     }
 
@@ -115,11 +120,13 @@
     }
 
     .sidenav .bottom a {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         padding: 16px 16px;
         text-decoration: none;
-        font-size: 20px;
+        font-size: 16px;
         color: black;
-        display: block;
         transition: 0.3s;
     }
 
