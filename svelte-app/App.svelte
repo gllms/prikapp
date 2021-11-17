@@ -1,26 +1,19 @@
 <script>
     import Menu from "./Menu.svelte";
     import Home from "./Home.svelte";
+    import Settings from "./Settings.svelte";
+    import NotFound from "./NotFound.svelte";
 
-    let cards = [
-        {
-            Type: "video",
-            Title: "De weg van het bloed",
-            Description: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt",
-            Content: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt"
-        },
-        {
-            Type: "text",
-            Title: "In de wachtkamer",
-            Description: "Uitleg over wat je moet doen in de wachtkamer",
-            Content: "In de wachtkamer moet je wachten."
-        }
-    ];
+    let path = location.pathname.split(/[/?#]/g)[1];
+    let routing = {
+        "": Home,
+        "settings": Settings,
+    };
 </script>
 
 <Menu />
 
-<Home cards={cards}/>
+<svelte:component this={routing[path] ?? NotFound} />
 
 <style>
     :global(body) {
