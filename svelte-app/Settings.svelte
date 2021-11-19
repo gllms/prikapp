@@ -1,8 +1,49 @@
 <script>
-    
+    import Agechoice from './store.js';
+    import Testing from "./store.js";
+    let Test;
+    Agechoice.subscribe(age=> {
+        Test = age;
+    });
+    let testing;
+    Testing.subscribe(bage=> {
+        testing = bage;
+    });
+	const Ageoptions = [{
+		value: 'j',
+		label: 'Jong',
+	}, {
+		value: 'm',
+		label: 'Middelbaar',
+	}, {
+		value: 'o',
+		label: 'Oud',
+	}]
+    const frequentie = [{
+		value: 'v',
+		label: 'Vaak',
+	}, {
+		value: 'l',
+		label: 'Incidenteel',
+	}]
+    const Theme = [{
+        value: 'l',
+        label: 'licht',
+    },  {
+        value: 'd',
+        label: 'donker',
+    }]
+    export let userSelectedAge = Ageoptions[Test].value;
+    export let userSelectedFreq = frequentie[0].value;
+    export let userSelectedTheme = Theme[1].value;
+	export let fontSize = 16;
+	export let flexDirection = 'column';
+
+    const uniqueID = Math.floor(Math.random() * 100)
+
+    const slugify = (str = "") =>
+        str.toLowerCase().replace(/ /g, "-").replace(/\./g, "");
 </script>
-
-
 
 
 <nav class="topBar">
@@ -16,32 +57,70 @@
         <div class="settingsText">Instellingen</div>
     </div>
 </nav>
-<div class="settings">
-    <form>
-        <!--Leeftijd setting-->
-        <div>Leeftijd</div>
-        <input type="radio" id="jong" name="Leeftijd" value="Jong" checked>
-        <label for="html">Jong</label><br>
-        <input type="radio" id="middelbaar" name="Leeftijd" value="Middelbaar">
-        <label for="css">Middelbaar</label><br>
-        <input type="radio" id="oud" name="Leeftijd" value="Oud">
-        <label for="javascript">Oud</label>
-        <!--Frequentie setting-->
-        <div>Frequentie</div>
-        <input type="radio" id="incidenteel" name="frequentie" value="Incidenteel" checked>
-        <label for="html">Incidenteel</label><br>
-        <input type="radio" id="regelmatig" name="frequentie" value="Regelmatig">
-        <label for="css">Regelmatig</label><br>
-        <!--Thema setting-->
-        <div>Thema</div>
-        <input type="radio" id="licht" name="thema" value="Licht">
-        <label for="html">Licht</label><br>
-        <input type="radio" id="donker" name="thema" value="Donker">
-        <label for="css">Donker</label><br>
-    </form> 
+
+<div role="radiogroup" 
+				 class="group-container"
+				 aria-labelledby={`label-${uniqueID}`}
+				 style="font-size:{fontSize}px; flex-direction:{flexDirection}" 
+				 id={`group-${uniqueID}`}>
+        <div class="legend" 
+						 id={`label-${uniqueID}`}>Agechoice
+				</div>
+  {#each Ageoptions as { value, label }}
+    <input
+      class="sr-only"
+      type="radio"
+      id={slugify(label)}
+      bind:group={userSelectedAge}
+      value={value} />
+    <label for={slugify(label)}> {label} </label>
+  {/each}
+	<div class="legend" 
+						 id={`label-${uniqueID}`}>Frequentie
+	</div>
+	{#each frequentie as { value, label }}
+    <input
+      class="sr-only"
+      type="radio"
+      id={slugify(label)}
+      bind:group={userSelectedFreq}
+      value={value} />
+    <label for={slugify(label)}> {label} </label>
+  {/each}
+  <div class="legend" 
+						 id={`label-${uniqueID}`}>{testing}
+	</div>
+  {#each Theme as { value, label }}
+    <input
+      class="sr-only"
+      type="radio"
+      id={slugify(label)}
+      bind:group={userSelectedTheme}
+      value={value} />
+    <label for={slugify(label)}> {label} </label>
+  {/each}
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <style>
+    .group-container{
+        position: absolute;
+        top: 300px;
+    }
     button{
         background: none;
         border: none;
