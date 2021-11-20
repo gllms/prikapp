@@ -1,13 +1,18 @@
 <script>
-    import Agechoice from './store.js';
-    import Testing from "./store.js";
-    let Test;
+    import { Agechoice } from './store.js';
+    import { Freqchoice } from "./store.js";
+    import { Themechoice } from "./store.js";
+    let Age;
     Agechoice.subscribe(age=> {
-        Test = age;
+        Age = age;
     });
-    let testing;
-    Testing.subscribe(bage=> {
-        testing = bage;
+    let Freq;
+    Freqchoice.subscribe(freq=> {
+        Freq = freq;
+    });
+    let Theme;
+    Themechoice.subscribe(theme=> {
+        Theme = theme;
     });
 	const Ageoptions = [{
 		value: 'j',
@@ -26,16 +31,16 @@
 		value: 'l',
 		label: 'Incidenteel',
 	}]
-    const Theme = [{
+    const Themeoptions = [{
         value: 'l',
         label: 'licht',
     },  {
         value: 'd',
         label: 'donker',
     }]
-    export let userSelectedAge = Ageoptions[Test].value;
-    export let userSelectedFreq = frequentie[0].value;
-    export let userSelectedTheme = Theme[1].value;
+    export let userSelectedAge = Ageoptions[Age].value;
+    export let userSelectedFreq = frequentie[Freq].value;
+    export let userSelectedTheme = Themeoptions[Theme].value;
 	export let fontSize = 16;
 	export let flexDirection = 'column';
 
@@ -58,25 +63,18 @@
     </div>
 </nav>
 
-<div role="radiogroup" 
-				 class="group-container"
-				 aria-labelledby={`label-${uniqueID}`}
-				 style="font-size:{fontSize}px; flex-direction:{flexDirection}" 
-				 id={`group-${uniqueID}`}>
-        <div class="legend" 
-						 id={`label-${uniqueID}`}>Agechoice
-				</div>
-  {#each Ageoptions as { value, label }}
-    <input
-      class="sr-only"
-      type="radio"
-      id={slugify(label)}
-      bind:group={userSelectedAge}
-      value={value} />
-    <label for={slugify(label)}> {label} </label>
-  {/each}
-	<div class="legend" 
-						 id={`label-${uniqueID}`}>Frequentie
+<div role="radiogroup" class="group-container" aria-labelledby={`label-${uniqueID}`} style="font-size:{fontSize}px; flex-direction:{flexDirection}"  id={`group-${uniqueID}`}>
+
+    <div class="legend"  id={`label-${uniqueID}`}>
+        Agechoice
+	</div>
+
+    {#each Ageoptions as { value, label }}
+        <input class="sr-only" type="radio" id={slugify(label)} bind:group={userSelectedAge} value={value} />
+        <label for={slugify(label)}> {label} </label>
+    {/each}
+	<div class="legend"  id={`label-${uniqueID}`}>
+        Frequentie
 	</div>
 	{#each frequentie as { value, label }}
     <input
@@ -88,9 +86,9 @@
     <label for={slugify(label)}> {label} </label>
   {/each}
   <div class="legend" 
-						 id={`label-${uniqueID}`}>{testing}
+						 id={`label-${uniqueID}`}>Thema
 	</div>
-  {#each Theme as { value, label }}
+  {#each Themeoptions as { value, label }}
     <input
       class="sr-only"
       type="radio"
@@ -159,12 +157,5 @@
         left: 35px;
         bottom: 0;
         font-size: 25px;
-    }
-    .settings{
-        position: absolute;
-        top: 150px;
-    }
-    #jong:checked{
-        color: brown;
     }
 </style>
