@@ -1,7 +1,5 @@
 import { writable } from "svelte/store";
 
-export const Agechoice = writable(0);
-export const Freqchoice = writable(0);
-export const Themechoice = writable(0);
-
-
+export const ageChoice = writable(1);
+export const freqChoice = writable(1);
+export const themeChoice = writable(1);

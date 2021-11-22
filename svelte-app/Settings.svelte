@@ -1,57 +1,39 @@
 <script>
-    import { Agechoice } from './store.js';
-    import { Freqchoice } from "./store.js";
-    import { Themechoice } from "./store.js";
-    let Age;
-    Agechoice.subscribe(age=> {
-        Age = age;
-    });
-    let Freq;
-    Freqchoice.subscribe(freq=> {
-        Freq = freq;
-    });
-    let Theme;
-    Themechoice.subscribe(theme=> {
-        Theme = theme;
-    });
-	const Ageoptions = [{
-		value: 'j',
-		label: 'Jong',
+    import { ageChoice } from "./store.js";
+    import { freqChoice } from "./store.js";
+    import { themeChoice } from "./store.js";
+	const ageOptions = [{
+		value: "jong",
+		label: "Jong",
 	}, {
-		value: 'm',
-		label: 'Middelbaar',
+		value: "middelbaar",
+		label: "Middelbaar",
 	}, {
-		value: 'o',
-		label: 'Oud',
+		value: "oud",
+		label: "Oud",
 	}]
     const frequentie = [{
-		value: 'v',
-		label: 'Vaak',
+		value: "vaak",
+		label: "Vaak",
 	}, {
-		value: 'l',
-		label: 'Incidenteel',
+		value: "incidenteel",
+		label: "Incidenteel",
 	}]
-    const Themeoptions = [{
-        value: 'l',
-        label: 'licht',
+    const themeOptions = [{
+        value: "licht",
+        label: "Licht",
     },  {
-        value: 'd',
-        label: 'donker',
+        value: "donker",
+        label: "Donker",
     }]
-    export let userSelectedAge = Ageoptions[Age].value;
-    export let userSelectedFreq = frequentie[Freq].value;
-    export let userSelectedTheme = Themeoptions[Theme].value;
-	export let fontSize = 16;
-	export let flexDirection = 'column';
+    let userSelectedAge = ageOptions[$ageChoice].value;
+    let userSelectedFreq = frequentie[$freqChoice].value;
+    let userSelectedTheme = themeOptions[$themeChoice].value;
 
-    const uniqueID = Math.floor(Math.random() * 100)
-
-    const slugify = (str = "") =>
-        str.toLowerCase().replace(/ /g, "-").replace(/\./g, "");
 </script>
 
 
-<nav class="topBar">
+<nav class="navBar">
     <button>
         <span class="material-icons settingsArrow">arrow_back</span>
     </button>
@@ -63,40 +45,36 @@
     </div>
 </nav>
 
-<div role="radiogroup" class="group-container" aria-labelledby={`label-${uniqueID}`} style="font-size:{fontSize}px; flex-direction:{flexDirection}"  id={`group-${uniqueID}`}>
+<div role="radiogroup" class="group-container">
 
-    <div class="legend"  id={`label-${uniqueID}`}>
-        Agechoice
+    <div class="legend">
+        Leeftijd
 	</div>
 
-    {#each Ageoptions as { value, label }}
-        <input class="sr-only" type="radio" id={slugify(label)} bind:group={userSelectedAge} value={value} />
-        <label for={slugify(label)}> {label} </label>
-    {/each}
-	<div class="legend"  id={`label-${uniqueID}`}>
+    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"jong"} />
+    <label for="age"> {"Jong"} </label><br>
+    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"middelbaar"} />
+    <label for="age"> {"Middelbaar"} </label><br>
+    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"oud"} />
+    <label for="age"> {"Oud"} </label>
+	<div class="legend">
         Frequentie
 	</div>
+
 	{#each frequentie as { value, label }}
-    <input
-      class="sr-only"
-      type="radio"
-      id={slugify(label)}
-      bind:group={userSelectedFreq}
-      value={value} />
-    <label for={slugify(label)}> {label} </label>
-  {/each}
-  <div class="legend" 
-						 id={`label-${uniqueID}`}>Thema
-	</div>
-  {#each Themeoptions as { value, label }}
-    <input
-      class="sr-only"
-      type="radio"
-      id={slugify(label)}
-      bind:group={userSelectedTheme}
-      value={value} />
-    <label for={slugify(label)}> {label} </label>
-  {/each}
+        <input class="radios" type="radio" bind:group={userSelectedFreq} value={value} />
+        <label for="fre"> {label} </label><br>
+    {/each}
+
+
+    <div class="legend">
+        Thema
+    </div>
+
+    {#each themeOptions as { value, label }}
+        <input class="radios" type="radio" bind:group={userSelectedTheme} value={value} />
+        <label for="the"> {label} </label><br>
+    {/each}
 </div>
 
 
@@ -115,9 +93,14 @@
 
 
 <style>
+    .legend{
+        font-size: 24px;
+    }
     .group-container{
         position: absolute;
         top: 300px;
+        font-size: 20px;
+        padding-left: 5%;
     }
     button{
         background: none;
@@ -134,7 +117,7 @@
         left: 50%;
         transform: translateX(-50%);
     }
-    .topBar{
+    .navBar{
         position: fixed;
         top: 0;
         background: #e7334c;
