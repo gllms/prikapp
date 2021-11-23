@@ -29,6 +29,16 @@
     let userSelectedAge = ageOptions[$ageChoice].value;
     let userSelectedFreq = frequentie[$freqChoice].value;
     let userSelectedTheme = themeOptions[$themeChoice].value;
+    function toggle(themeButton) {
+        if(!(window.document.body.classList.contains('dark-mode'))&& themeButton=="Dark"){
+            window.document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', 'dark');
+        }
+        else if (window.document.body.classList.contains('dark-mode')&& themeButton=="Light"){
+            window.document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', 'light');
+        }
+	}
 
 </script>
 
@@ -71,10 +81,10 @@
         Thema
     </div>
 
-    {#each themeOptions as { value, label }}
-        <input class="radios" type="radio" bind:group={userSelectedTheme} value={value} />
-        <label for="the"> {label} </label><br>
-    {/each}
+    <input on:click= {() => toggle("Light")} class="radios" type="radio" bind:group={userSelectedTheme} value={"licht"} />
+    <label for="the"> {"Licht"} </label><br>
+    <input on:click= {() => toggle("Dark")} class="radios" type="radio" bind:group={userSelectedTheme} value={"donker"} />
+    <label for="the"> {"Donker"} </label><br>
 </div>
 
 
@@ -93,6 +103,41 @@
 
 
 <style>
+    :global(body) {
+        background-color: #eee;
+        color: black;
+        transition: background-color 0.3s;
+    }
+    :global(body.dark-mode) {
+		background-color: black;
+		color: white;
+	}
+    :global(nav.dark-mode) {
+		color: black;
+        background-color: white;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     .legend{
         font-size: 24px;
     }
