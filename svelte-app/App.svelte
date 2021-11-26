@@ -3,7 +3,7 @@
     import Home from "./Home.svelte";
     import Settings from "./Settings.svelte";
     import NotFound from "./NotFound.svelte";
-    import { themeChoice  } from "./store.js";
+    import { themeChoice  } from "./stores.js";
 
     let path = location.pathname.split(/[/?#]/g)[1];
     let routing = {
@@ -11,12 +11,11 @@
         "settings": Settings,
     };
 
-    if(!(window.document.body.classList.contains('dark-mode'))&& $themeChoice=="donker"){
-        window.document.body.classList.toggle('dark-mode');
-        /*window.document.p.classList.toggle("dark-mode");*/
+    if($themeChoice == "donker"){
+        window.document.body.classList.add('dark-mode');
     }
-    else if (window.document.body.classList.contains('dark-mode')&& $themeChoice=="licht"){
-        window.document.body.classList.toggle('dark-mode');
+    else if ($themeChoice == "licht"){
+        window.document.body.classList.remove('dark-mode');
     }
 </script>
 
@@ -31,6 +30,5 @@
     }
     :global(body.dark-mode){
         background: black;
-        margin-top: 48px;
     }
 </style>
