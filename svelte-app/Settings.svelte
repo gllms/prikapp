@@ -26,20 +26,22 @@
         value: "donker",
         label: "Donker",
     }]
-    let userSelectedAge = ageOptions[$ageChoice].value;
-    let userSelectedFreq = frequentie[$freqChoice].value;
-    let userSelectedTheme = themeOptions[$themeChoice].value;
-    function toggle(themeButton) {
-        if(!(window.document.body.classList.contains('dark-mode'))&& themeButton=="Dark"){
+    function ageSave(ageValue){
+        localStorage.setItem('age', ageValue);
+    }
+    function freqSave(freqValue){
+        localStorage.setItem('freq', freqValue);
+    }
+    function themeSave(themeValue) {
+        if(!(window.document.body.classList.contains('dark-mode'))&& themeValue=="Dark"){
             window.document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', 'dark');
+            localStorage.setItem('theme', 'donker');
         }
-        else if (window.document.body.classList.contains('dark-mode')&& themeButton=="Light"){
+        else if (window.document.body.classList.contains('dark-mode')&& themeValue=="Light"){
             window.document.body.classList.toggle('dark-mode');
-            localStorage.setItem('theme', 'light');
+            localStorage.setItem('theme', 'licht');
         }
-	}
-
+	}     
 </script>
 
 
@@ -61,29 +63,31 @@
         Leeftijd
 	</div>
 
-    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"jong"} />
+    <input on:click= {() => ageSave("jong")} class="radios" type="radio"  bind:group={$ageChoice} value={"jong"} />
     <label for="age"> {"Jong"} </label><br>
-    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"middelbaar"} />
+    <input on:click= {() => ageSave("middelbaar")} class="radios" type="radio"  bind:group={$ageChoice} value={"middelbaar"} />
     <label for="age"> {"Middelbaar"} </label><br>
-    <input class="radios" type="radio"  bind:group={userSelectedAge} value={"oud"} />
+    <input on:click= {() => ageSave("oud")} class="radios" type="radio"  bind:group={$ageChoice} value={"oud"} />
     <label for="age"> {"Oud"} </label>
 	<div class="legend">
         Frequentie
 	</div>
 
-	{#each frequentie as { value, label }}
-        <input class="radios" type="radio" bind:group={userSelectedFreq} value={value} />
-        <label for="fre"> {label} </label><br>
-    {/each}
+
+    <input on:click= {() => freqSave("incidenteel")} class="radios" type="radio" bind:group={$freqChoice} value={"incidenteel"} />
+    <label for="freq"> {"Incidenteel"} </label><br>
+    <input on:click= {() => freqSave("regelmatig")} class="radios" type="radio" bind:group={$freqChoice} value={"regelmatig"} />
+    <label for="freq"> {"Regelmatig"} </label><br>
+
 
 
     <div class="legend">
         Thema
     </div>
 
-    <input on:click= {() => toggle("Light")} class="radios" type="radio" bind:group={userSelectedTheme} value={"licht"} />
+    <input on:click= {() => themeSave("Light")} class="radios" type="radio" bind:group={$themeChoice} value={"licht"} />
     <label for="the"> {"Licht"} </label><br>
-    <input on:click= {() => toggle("Dark")} class="radios" type="radio" bind:group={userSelectedTheme} value={"donker"} />
+    <input on:click= {() => themeSave("Dark")} class="radios" type="radio" bind:group={$themeChoice} value={"donker"} />
     <label for="the"> {"Donker"} </label><br>
 </div>
 
@@ -111,10 +115,6 @@
     :global(body.dark-mode) {
 		background-color: black;
 		color: white;
-	}
-    :global(nav.dark-mode) {
-		color: black;
-        background-color: white;
 	}
 
 
