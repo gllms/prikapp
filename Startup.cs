@@ -40,7 +40,7 @@ namespace prikapp
                 app.UseDeveloperExceptionPage();
             }
 
-            // app.UseDefaultFiles();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
 

@@ -7,8 +7,8 @@
     }
     
     function handleNavWithKey(e) {
-        e.preventDefault();
         if (e.code === "F1") {
+            e.preventDefault();
             navOpen = !navOpen;
         }
     }
