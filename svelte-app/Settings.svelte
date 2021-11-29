@@ -69,7 +69,7 @@
         transition: background-color 0.3s;
     }
     :global(body.dark-mode) {
-        background-color: black;
+        background-color: #222;
         color: white;
     }
 

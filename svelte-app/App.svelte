@@ -28,7 +28,4 @@
         background: #eee;
         margin-top: 48px;
     }
-    :global(body.dark-mode){
-        background: black;
-    }
 </style>

@@ -36,11 +36,17 @@
     <div class="bottom">
         <a href="#d"><span class="material-icons">place</span>Locaties</a>
         <a href="#c"><span class="material-icons">person</span>Inloggen</a>
-        <a href="#b"><span class="material-icons">settings</span>Instellingen</a>
+        <a href="#b"><span class="material-icons">settings</span>Instellingen</a> 
     </div>
 </div>
 
 <style>
+    :global(.dark-mode) .sidenav .bottom a {
+        color: white;
+    }
+    :global(.dark-mode) .sidenav {
+        background: #222;
+    }
     nav {
         position: fixed;
         background: rgba(231, 51, 76, .8);
@@ -123,9 +129,9 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 16px 16px;
         text-decoration: none;
         font-size: 16px;
+        padding: 16px 16px;
         color: black;
         transition: 0.3s;
     }

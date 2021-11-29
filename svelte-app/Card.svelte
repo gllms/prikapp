@@ -25,6 +25,9 @@
 </div>
 
 <style>
+    :global(.dark-mode) .card {
+        background: black;
+    }
     .card {
         border-radius: 8px;
         background: white;
