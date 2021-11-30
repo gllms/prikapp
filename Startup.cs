@@ -40,7 +40,7 @@ namespace prikapp
                 app.UseDeveloperExceptionPage();
             }
 
-            // app.UseDefaultFiles();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseRouting();
 
@@ -61,6 +61,11 @@ namespace prikapp
 
                     context.Response.Headers.Add("Content-Type", "application/json");
                     await context.Response.WriteAsync(jsonString);
+                });
+                endpoints.MapGet("/postcodes.json", async context =>
+                {
+                    context.Response.Headers.Add("Content-Type", "application/json");
+                    await context.Response.WriteAsync(File.ReadAllText("./postcodes.json"));
                 });
                 endpoints.MapGet("/{**unknown}", async context =>
                 {
