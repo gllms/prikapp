@@ -1,5 +1,6 @@
 <script>
     import MediaQuery from "./MediaQuery.svelte";
+    import Loading from "./Loading.svelte";
 
     let name = "";
     let range = 15;
@@ -32,69 +33,76 @@
 
 <MediaQuery query="(min-width: 480px)" let:matches>
     {#if matches}
-        <div class="location-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Plaats</th>
-                        <th>Naam Locatie</th>
-                        <th>Adres</th>
-                        <th>Postcode</th>
-                        <th>Openingstijden</th>
-                        <th>Bijzonderheden</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each locations as location}
-                        {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
-                        <tr>
-                            <td>{@html location.Place}</td>
-                            <td>{@html location.LocationName}</td>
-                            <td>{location.Address}</td>
-                            <td>{location.Postalcode}</td>
-                            <td>{@html location.OpeningHours}</td>
-                            <td>{location.Particularities}</td>
-                        </tr>
-                        {/if}
-                    {/each}
-                </tbody>
-                
-            </table>
-        </div>
-        
-    {:else}
-        {#each locations as location}
-            {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
-                <div class="location-card">
-                    <table class="lightblue">
+        {#if locations.length}
+            <div class="location-table">
+                <table>
+                    <thead>
                         <tr>
                             <th>Plaats</th>
-                            <td>{@html location.Place}</td>
-                        </tr>
-                        <tr>
-                            <th>Naam</th>
-                            <td>{@html location.LocationName}</td>
-                        </tr>
-                        <tr>
+                            <th>Naam Locatie</th>
                             <th>Adres</th>
-                            <td>{location.Address}</td>
-                        </tr>
-                        <tr>
                             <th>Postcode</th>
-                            <td>{location.Postalcode}</td>
-                        </tr>
-                        <tr>
                             <th>Openingstijden</th>
-                            <td>{@html location.OpeningHours}</td>
-                        </tr>
-                        <tr>
                             <th>Bijzonderheden</th>
-                            <td>{location.Particularities}</td>
                         </tr>
-                    </table>
-                </div>
-            {/if}
-        {/each}
+                    </thead>
+                    <tbody>
+                        {#each locations as location}
+                            {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
+                            <tr>
+                                <td>{@html location.Place}</td>
+                                <td>{@html location.LocationName}</td>
+                                <td>{location.Address}</td>
+                                <td>{location.Postalcode}</td>
+                                <td>{@html location.OpeningHours}</td>
+                                <td>{location.Particularities}</td>
+                            </tr>
+                            {/if}
+                        {/each}
+                    </tbody>
+                    
+                </table>
+            </div>
+        {:else}
+            <Loading />
+        {/if}
+    {:else}
+        {#if locations.length}
+            {#each locations as location}
+                {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
+                    <div class="location-card">
+                        <table class="lightblue">
+                            <tr>
+                                <th>Plaats</th>
+                                <td>{@html location.Place}</td>
+                            </tr>
+                            <tr>
+                                <th>Naam</th>
+                                <td>{@html location.LocationName}</td>
+                            </tr>
+                            <tr>
+                                <th>Adres</th>
+                                <td>{location.Address}</td>
+                            </tr>
+                            <tr>
+                                <th>Postcode</th>
+                                <td>{location.Postalcode}</td>
+                            </tr>
+                            <tr>
+                                <th>Openingstijden</th>
+                                <td>{@html location.OpeningHours}</td>
+                            </tr>
+                            <tr>
+                                <th>Bijzonderheden</th>
+                                <td>{location.Particularities}</td>
+                            </tr>
+                        </table>
+                    </div>
+                {/if}
+            {/each}
+        {:else}
+            <Loading />
+        {/if}
     {/if}
 </MediaQuery>
 
@@ -148,6 +156,7 @@
     @media only screen and (min-width: 480px) {
         .location-table {
             margin: auto;
+            padding: 32px;
         }
 
         .search {
@@ -162,16 +171,22 @@
 
         table {
             width: 100%;
-            border-radius: 8px;
             margin: 0 auto 10px auto;
             border-collapse:collapse;
             color: black;
-            background-color: #79b9d5;
         }
 
         table, th, td {
             padding: 5px;
-            border: 1px solid white;
+        }
+
+        thead tr {
+            position: sticky;
+            top: 48px;
+        }
+
+        thead tr th {
+            text-align: center;
         }
 
         th {
@@ -181,24 +196,21 @@
             background-color: #e7334c;
         }
 
+        th:first-child {
+            border-radius: 8px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 8px 0 0;
+        }
+
         td {
             text-align: left;
             font-weight: 50;
         }
-    }
-    
-    
-    /* colors */
 
-    .darkblue {
-        background: #142d49;
-    }
-
-    .lightblue {
-        background: #79b9d5;
-    }
-
-    .red {
-        background: #e7334c;
+        tr:nth-child(2n) {
+            background: #ddd;
+        }
     }
 </style>
