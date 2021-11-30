@@ -2,23 +2,32 @@
     import MediaQuery from "./MediaQuery.svelte";
 
     let name = "";
-    let locations = "Loading...";
-    const Http = new XMLHttpRequest();
-    const url = 'https://localhost:5001/locations.json';
+    let range = 15;
+    let currentPostcode = "";
+    $: currentPostcode = /\d{4}/.test(name) ? /\d{4}/.exec(name)[0] : "";
+    $: if (coords[currentPostcode]) {
+        locations.sort((a, b) => distance(coords[currentPostcode], coords[a.Postalcode.substring(0, 4)]) - distance(coords[currentPostcode], coords[b.Postalcode.substring(0, 4)]));
+        locations = locations;
+    }
 
-    
-    Http.open("GET", url);
-    Http.send();
+    let locations = [];
+    fetch("./locations.json").then(response => response.json()).then(response => locations = response);
 
-    Http.onreadystatechange = (e) => {
-        console.log(Http.responseText)
-        locations = JSON.parse(Http.responseText);
+    let coords = {};
+    fetch("./postcodes.json").then(response => response.json()).then(response => coords = response);
+
+    function distance(c1, c2) {
+        const dLat = (c2.Lat - c1.Lat) * Math.PI/180;
+        const dLon = (c2.Lon - c1.Lon) * Math.PI/180;
+        const result = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(c1.Lat * Math.PI/180) * Math.cos(c2.Lat * Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return 12742 * Math.atan2(Math.sqrt(result), Math.sqrt(1-result));
     }
 </script>
 
 <div class="search">
     <p>Zoek op postcode:</p>
-    <input type='text' bind:value={name}/>
+    <label>postcode: <input type="text" bind:value={name} disabled={!coords || !locations} placeholder="0000 AB"/></label>
+    <label>radius: <input type="number" bind:value={range} min="0"/></label>
 </div>
 
 <MediaQuery query="(min-width: 480px)" let:matches>
@@ -37,6 +46,7 @@
                 </thead>
                 <tbody>
                     {#each locations as location}
+                        {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
                         <tr>
                             <td>{@html location.Place}</td>
                             <td>{@html location.LocationName}</td>
@@ -45,6 +55,7 @@
                             <td>{@html location.OpeningHours}</td>
                             <td>{location.Particularities}</td>
                         </tr>
+                        {/if}
                     {/each}
                 </tbody>
                 
@@ -53,34 +64,36 @@
         
     {:else}
         {#each locations as location}
-            <div class="location-card">
-                <table class="lightblue">
-                    <tr>
-                        <th>Plaats</th>
-                        <td>{@html location.Place}</td>
-                    </tr>
-                    <tr>
-                        <th>Naam</th>
-                        <td>{@html location.LocationName}</td>
-                    </tr>
-                    <tr>
-                        <th>Adres</th>
-                        <td>{location.Address}</td>
-                    </tr>
-                    <tr>
-                        <th>Postcode</th>
-                        <td>{location.Postalcode}</td>
-                    </tr>
-                    <tr>
-                        <th>Openingstijden</th>
-                        <td>{@html location.OpeningHours}</td>
-                    </tr>
-                    <tr>
-                        <th>Bijzonderheden</th>
-                        <td>{location.Particularities}</td>
-                    </tr>
-                </table>
-            </div>
+            {#if currentPostcode == "" || coords[currentPostcode] && distance(coords[currentPostcode], coords[location.Postalcode.substring(0, 4)]) < range}
+                <div class="location-card">
+                    <table class="lightblue">
+                        <tr>
+                            <th>Plaats</th>
+                            <td>{@html location.Place}</td>
+                        </tr>
+                        <tr>
+                            <th>Naam</th>
+                            <td>{@html location.LocationName}</td>
+                        </tr>
+                        <tr>
+                            <th>Adres</th>
+                            <td>{location.Address}</td>
+                        </tr>
+                        <tr>
+                            <th>Postcode</th>
+                            <td>{location.Postalcode}</td>
+                        </tr>
+                        <tr>
+                            <th>Openingstijden</th>
+                            <td>{@html location.OpeningHours}</td>
+                        </tr>
+                        <tr>
+                            <th>Bijzonderheden</th>
+                            <td>{location.Particularities}</td>
+                        </tr>
+                    </table>
+                </div>
+            {/if}
         {/each}
     {/if}
 </MediaQuery>
