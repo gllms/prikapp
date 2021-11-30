@@ -1,11 +1,19 @@
 <script>
     import { createEventDispatcher } from "svelte";
     import { fly } from "svelte/transition";
+    import { Editor } from "typewriter-editor";
+    import asRoot from "typewriter-editor/lib/asRoot";
+    import Toolbar from "typewriter-editor/lib/Toolbar.svelte";
     
     export let card = {};
     export let modal = false;
-
+    export let editing = false;
+    
     const dispatch = createEventDispatcher();
+    let open = true;
+    
+    const editor = new Editor();
+    $: editor.setHTML(card.Content);
 
     let categories = {
         "video": {
@@ -19,23 +27,56 @@
     };
 </script>
 
-<div class="card{modal ? ' modal' : ''}" on:click={() => dispatch("click")} transition:fly={{ y: 1000, duration: 300, delay: 200, opacity: 1 }} tabindex="0">
-    <div class={"top " + categories[card.Type].color}>
+{#if open}
+    <div class="card{modal ? ' modal' : ''}" on:click={() => dispatch("click")} in:fly={{ y: 1000, duration: 300, delay: 200, opacity: 1 }} out:fly={{ y: 1000, duration: 300, opacity: 1 }} tabindex="0">
+        <div class={"top " + categories[card.Type].color}>
+            {#if modal}
+                {#if !editing}
+                    <button on:click|stopPropagation={() => dispatch("back")}>
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                {/if}
+
+                <button on:click|stopPropagation={() => { editing = !editing; if (!editing) card.Content = editor.getHTML() }} style="right:0">
+                    {#if editing}
+                        <span class="material-icons">done</span>
+                    {:else}
+                        <span class="material-icons">edit</span>
+                    {/if}
+                </button>
+            {/if}
+            <h1>
+                <span class="material-icons">{categories[card.Type].icon}</span>
+                {#if editing}
+                    <input type="text" bind:value={card.Title} />
+                {:else}
+                    {card.Title}
+                {/if}
+            </h1>
+        </div>
+        <div class="bottom">
         {#if modal}
-            <button on:click|stopPropagation={() => dispatch("back") }>
-                <span class="material-icons">arrow_back</span>
-            </button>
+            {#if editing}
+                Beschrijving: <input type="text" bind:value={card.Description}>
+                <Toolbar {editor} let:active let:commands>
+                    <div class="toolbar">
+                        <button title="titel" class:active={active.header === 1} on:click={commands.header1}><span class="material-icons">title</span></button>
+                        <button title="vet" class:active={active.bold} on:click={commands.bold}><span class="material-icons">format_bold</span></button>
+                        <button title="schuin" class:active={active.italic} on:click={commands.italic}><span class="material-icons">format_italic</span></button>
+                        <button title="citaat" class:active={active.blockquote} on:click={commands.blockquote}><span class="material-icons">format_quote</span></button>
+                    </div>
+                </Toolbar>
+                
+                <div class="rich-text" use:asRoot={editor} />
+            {:else}
+                {@html card.Content}
+            {/if}
+        {:else}
+            {card.Description}
         {/if}
-        <h1><span class="material-icons">{categories[card.Type].icon}</span>{card.Title}</h1>
+        </div>
     </div>
-    <div class="bottom">
-    {#if modal}
-        {card.Content}
-    {:else}
-        {card.Description}
-    {/if}
-    </div>
-</div>
+{/if}
 
 <style>
     .card {
@@ -109,7 +150,7 @@
         top: 0;
     }
 
-    h1 {
+    .top h1 {
         margin: 8px;
         font-size: 24px;
         color: white;
@@ -118,11 +159,59 @@
         gap: 5px;
     }
 
+    .top h1 input {
+        font-size: 24px;
+        padding: 0;
+        background: none;
+        border: none;
+        color: white;
+        font-weight: bold;
+    }
+
     .card.modal h1 {
         margin: 16px;
     }
 
     .bottom {
         margin: 16px;
+    }
+
+    .toolbar {
+        position: sticky;
+        top: 0;
+        padding: 0 16px;
+        background: white;
+        width: 100%;
+        transform: translateX(-16px);
+    }
+
+    .toolbar button {
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        width: 30px;
+        background: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background .2s;
+    }
+
+    .toolbar button:hover {
+        background: #eee;
+    }
+
+    .toolbar button.active {
+        background: #ccc;
+    }
+
+    :global(.bottom) .underline {
+        text-decoration: underline;
+    }
+
+    :global(.bottom) p {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 </style>

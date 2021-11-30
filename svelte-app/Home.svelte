@@ -14,12 +14,15 @@
             Type: "text",
             Title: "In de wachtkamer",
             Description: "Uitleg over wat je moet doen in de wachtkamer",
-            Content: "In de wachtkamer moet je wachten."
+            Content: "In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. "
         }
     ];
 
     let currentCard = null;
+    let editing = false;
+
     $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
+    $: currentCard, cards = cards;
 </script>
 
 <div class="cards">
@@ -29,8 +32,8 @@
 </div>
 
 {#if currentCard}
-    <div class="grey" on:click={(e) => { if (e.target.matches(".grey")) { currentCard = null; $overlayCount-- } }} transition:fade={{ duration: 200 }}>
-        <Card card={currentCard} modal={true} on:back={() => { currentCard = null; $overlayCount-- }}/>
+    <div class="grey" on:click={(e) => { if (!editing && e.target.matches(".grey")) { currentCard = null; $overlayCount-- } }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
+        <Card card={currentCard} modal={true} on:back={() => { currentCard = null; $overlayCount-- }} bind:editing />
     </div>
 {/if}
 
