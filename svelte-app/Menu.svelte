@@ -1,17 +1,21 @@
 <script>
+    import { overlayCount } from "./stores";
+    import { fade, fly } from "svelte/transition";
+
     let navOpen = false;
     
     function handleNav() {
         navOpen = !navOpen;
-        document.body.style.overflow = navOpen ? "hidden" : "auto";
+        $overlayCount = $overlayCount + (navOpen ? 1 : -1);
+        document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
     }
     
     function handleNavWithKey(e) {
         if (e.code === "F1") {
             e.preventDefault();
-            navOpen = !navOpen;
+            handleNav();
         }
-    }
+    } 
 </script>
 
 <!-- Use keyboard to handle the sidenav -->
@@ -23,10 +27,11 @@
     </button>
     <img src="logo.png" alt="logo"/>
 </nav>
-  
-<div class:grey={navOpen} on:click={handleNav}></div>
 
-<div class="sidenav" class:open={navOpen}>
+{#if navOpen}
+<div class="grey" on:click={handleNav} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}></div>
+
+<div class="sidenav" in:fly={{ x: -400, duration: 200, delay: 200, opacity: 1 }} out:fly={{ x:-400, duration: 200, opacity: 1 }}>
     <div class="top">
         <button on:click={handleNav}>
             <span class="material-icons">close</span>
@@ -39,16 +44,17 @@
         <a href="#b"><span class="material-icons">settings</span>Instellingen</a>
     </div>
 </div>
+{/if}
 
 <style>
     nav {
         position: fixed;
-        background: rgba(231, 51, 76, .8);
-        backdrop-filter: blur(10px);
+        background: #e7334c;
         height: 48px;
         width: 100%;
         top: 0;
         box-sizing: border-box;
+        z-index: 999;
     }
 
     /* Hamburger Menu icon */	
@@ -63,20 +69,27 @@
     nav img {
         position: absolute;
         height: 32px;
-        margin: 8px;
+        margin: 8px 0;
         left: 50%;
         transform: translateX(-50%);
+        user-select: none;
     }
 
     .grey {
+        position: fixed;
         width: 100%;
         height: 100%;
-        position: fixed;
         z-index: 9999;
         top: 0;
-        background-color: rgba(0, 0, 0, .8);
-        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, .95);
         transition: 0.5s;
+    }
+
+    @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+        .grey {
+            background: rgba(0, 0, 0, .8);
+            backdrop-filter: blur(10px);
+        }
     }
 
     /* The side navigation menu */
@@ -89,19 +102,14 @@
         font-family: sans-serif;
         overflow-x: hidden; /* Disable horizontal scroll */
         transition: 0.5s;
-        width: min(400px, 90%);
-        left: -100%;
-    }
-
-    .sidenav.open {
-        left: 0;
+        width: min(400px, calc(100% - 48px));
     }
 
     /* The navigation menu links */
     .sidenav .top {
         display: flex;
         align-items: flex-end;
-        background-color: #e7334c;
+        background: #e7334c;
         height: 150px;
     }
 
