@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IO.Compression;
 
 namespace prikapp
 {
@@ -53,13 +54,16 @@ namespace prikapp
                 });
                 endpoints.MapGet("/locations.json", async context =>
                 {
-                    // TODO: request locations from star and convert to json
+                    var acceptedEncoding = context.Request.Headers["Accept-Encoding"];
+                    System.Console.WriteLine("Request made to /locations.json with accepted encoding: " + acceptedEncoding);
+                    
                     string starSiteUrl = @"https://www.star-shl.nl/bloedafname-locatie/";
                     string pageHTML = DownloadPage(starSiteUrl);
                     List<LocationData> result = StripLocations(pageHTML);
                     string jsonString = JsonSerializer.Serialize(result);
 
                     context.Response.Headers.Add("Content-Type", "application/json");
+                    
                     await context.Response.WriteAsync(jsonString);
                 });
                 endpoints.MapGet("/postcodes.json", async context =>
