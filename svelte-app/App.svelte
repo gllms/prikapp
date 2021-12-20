@@ -2,6 +2,7 @@
     import Menu from "./Menu.svelte";
     import Home from "./Home.svelte";
     import Settings from "./Settings.svelte";
+    import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
     import { themeChoice  } from "./stores.js";
 
@@ -9,6 +10,7 @@
     let routing = {
         "": Home,
         "settings": Settings,
+        "locations": Locations,
     };
 
     if($themeChoice == "donker"){
