@@ -4,6 +4,7 @@
     import Settings from "./Settings.svelte";
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
+    import { themeChoice  } from "./stores.js";
 
     let path = location.pathname.split(/[/?#]/g)[1];
     let routing = {
@@ -11,6 +12,13 @@
         "settings": Settings,
         "locations": Locations,
     };
+
+    if($themeChoice == "donker"){
+        window.document.body.classList.add('dark-mode');
+    }
+    else if ($themeChoice == "licht"){
+        window.document.body.classList.remove('dark-mode');
+    }
 </script>
 
 <Menu />
