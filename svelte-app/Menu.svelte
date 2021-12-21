@@ -39,9 +39,9 @@
         <p>Menu</p>
     </div>
     <div class="bottom">
-        <a href="#d"><span class="material-icons">place</span>Locaties</a>
-        <a href="#c"><span class="material-icons">person</span>Inloggen</a>
-        <a href="#b"><span class="material-icons">settings</span>Instellingen</a> 
+        <a href="locations"><span class="material-icons">place</span>Locaties</a>
+        <a href="login"><span class="material-icons">person</span>Inloggen</a>
+        <a href="settings"><span class="material-icons">settings</span>Instellingen</a>
     </div>
 </div>
 {/if}

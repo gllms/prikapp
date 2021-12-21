@@ -5,12 +5,14 @@
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
     import { themeChoice  } from "./stores.js";
+    import Login from "./Login.svelte";
 
     let path = location.pathname.split(/[/?#]/g)[1];
     let routing = {
         "": Home,
         "settings": Settings,
         "locations": Locations,
+        "login": Login,
     };
 
     if($themeChoice == "donker"){
