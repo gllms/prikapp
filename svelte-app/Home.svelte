@@ -1,22 +1,11 @@
 <script>
     import Card from "./Card.svelte";
+    import Loading from "./Loading.svelte";
     import { fade } from "svelte/transition";
     import { overlayCount } from "./stores.js";
 
-    let cards = [
-        {
-            Type: "video",
-            Title: "De weg van het bloed",
-            Description: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt",
-            Content: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt"
-        },
-        {
-            Type: "text",
-            Title: "In de wachtkamer",
-            Description: "Uitleg over wat je moet doen in de wachtkamer",
-            Content: "In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. In de wachtkamer moet je wachten. "
-        }
-    ];
+    let cards = [];
+    let promise = fetch("./cards.json").then(response => response.json()).then(response => cards = response);
 
     let currentCard = null;
     let editing = false;
@@ -26,9 +15,15 @@
 </script>
 
 <div class="cards">
-    {#each cards as card}
-        <Card card={card} on:click={() => { currentCard = card; $overlayCount++ }}/>
-    {/each}
+    {#await promise}
+        <Loading />
+    {:then}
+        {#each cards as card, index (card.Id)}
+            <Card card={card} {index} on:click={() => { currentCard = card; $overlayCount++ }}/>
+        {/each}
+    {:catch error}
+        <p>Laden van kaarten mislukt</p>
+    {/await}
 </div>
 
 {#if currentCard}
