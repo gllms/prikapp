@@ -28,7 +28,7 @@
 
 {#if currentCard}
     <div class="grey" on:click={(e) => { if (!editing && e.target.matches(".grey")) { currentCard = null; $overlayCount-- } }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
-        <Card card={currentCard} modal={true} on:back={() => { currentCard = null; $overlayCount-- }} bind:editing />
+        <Card card={currentCard} modal on:back={() => { currentCard = null; $overlayCount-- }} bind:editing />
     </div>
 {/if}
 
@@ -61,6 +61,7 @@
         .grey {
             background-color: rgba(0, 0, 0, .8);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
     }
 </style>

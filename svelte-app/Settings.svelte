@@ -39,27 +39,25 @@
     <div class="legend">
         Leeftijd
     </div>
-
     
     <label><input on:click={() => ageSave("jong")} class="radios" type="radio"  bind:group={$ageChoice} value="jong" /> Jong</label><br>
     <label><input on:click= {() => ageSave("middelbaar")} class="radios" type="radio"  bind:group={$ageChoice} value="middelbaar" /> Middelbaar</label><br>
     
     <label><input on:click= {() => ageSave("oud")} class="radios" type="radio"  bind:group={$ageChoice} value={"oud"} /> Oud</label>
+
     <div class="legend">
         Frequentie
     </div>
 
-
-    
-    <label><input on:click= {() => freqSave("incidenteel")} class="radios" type="radio" bind:group={$freqChoice} value={"incidenteel"} /> Incidenteel</label><br>
-    <label><input on:click= {() => freqSave("regelmatig")} class="radios" type="radio" bind:group={$freqChoice} value={"regelmatig"} /> Regelmatig</label><br>
+    <label><input on:click= {() => freqSave("incidenteel")} class="radios" type="radio" bind:group={$freqChoice} value="incidenteel" /> Incidenteel</label><br>
+    <label><input on:click= {() => freqSave("regelmatig")} class="radios" type="radio" bind:group={$freqChoice} value="regelmatig" /> Regelmatig</label><br>
 
     <div class="legend">
         Thema
     </div>
 
-    <label><input on:click= {() => themeSave("Light")} class="radios" type="radio" bind:group={$themeChoice} value={"licht"} /> Licht</label><br>
-    <label><input on:click= {() => themeSave("Dark")} class="radios" type="radio" bind:group={$themeChoice} value={"donker"} /> Donker</label><br>
+    <label><input on:click= {() => themeSave("Light")} class="radios" type="radio" bind:group={$themeChoice} value="licht" /> Licht</label><br>
+    <label><input on:click= {() => themeSave("Dark")} class="radios" type="radio" bind:group={$themeChoice} value="donker" /> Donker</label><br>
 </div>
 
 <style>

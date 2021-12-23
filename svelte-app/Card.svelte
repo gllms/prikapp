@@ -36,7 +36,6 @@
 
     function saveCard() {
         card.Content = editor.getHTML();
-        // post request to save card
         fetch("/saveCard", {
             method: "POST",
             headers: {
@@ -58,11 +57,7 @@
                 {/if}
 
                 <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0">
-                    {#if editing}
-                        <span class="material-icons">done</span>
-                    {:else}
-                        <span class="material-icons">edit</span>
-                    {/if}
+                    <span class="material-icons">{editing ? "done" : "edit"}</span>
                 </button>
             {/if}
             <h1>
@@ -102,6 +97,7 @@
     :global(.dark-mode) .card {
         background: black;
     }
+
     .card {
         border-radius: 8px;
         background: white;
@@ -232,7 +228,7 @@
     :global(.bottom) .underline {
         text-decoration: underline;
     }
-
+    
     :global(.bottom) p {
         margin-top: 0;
         margin-bottom: 0;

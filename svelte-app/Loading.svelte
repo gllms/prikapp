@@ -2,19 +2,20 @@
 
 <style>
     .loading {
-        width: 80px;
-        height: 80px;
+        width: 40px;
+        height: 40px;
         margin: 0 auto;
+        grid-column: span 2;
     }
 
     .loading div {
         box-sizing: border-box;
         display: block;
         position: absolute;
-        width: 64px;
-        height: 64px;
-        margin: 8px;
-        border: 8px solid #e7334c;
+        width: 32px;
+        height: 32px;
+        margin: 4px;
+        border: 4px solid #e7334c;
         border-radius: 50%;
         animation: loading 1.2s cubic-bezier(0.57, 0.13, 0.38, 0.8) infinite;
         border-color: #e7334c transparent transparent transparent;
