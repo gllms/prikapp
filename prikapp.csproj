@@ -5,4 +5,8 @@
     <RootNamespace>prikapp</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="6.0.2" />
+  </ItemGroup>
+
 </Project>

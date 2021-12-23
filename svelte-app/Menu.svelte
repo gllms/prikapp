@@ -6,20 +6,10 @@
     
     function handleNav() {
         navOpen = !navOpen;
-        $overlayCount = $overlayCount + (navOpen ? 1 : -1);
+        $overlayCount += (navOpen ? 1 : -1);
         document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
     }
-    
-    function handleNavWithKey(e) {
-        if (e.code === "F1") {
-            e.preventDefault();
-            handleNav();
-        }
-    } 
 </script>
-
-<!-- Use keyboard to handle the sidenav -->
-<svelte:window on:keydown={handleNavWithKey} />
 
 <nav>
     <button on:click={handleNav}>
@@ -29,30 +19,24 @@
 </nav>
 
 {#if navOpen}
-<div class="grey" on:click={handleNav} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}></div>
+    <div class="grey" on:click={handleNav} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}></div>
 
-<div class="sidenav" in:fly={{ x: -400, duration: 200, delay: 200, opacity: 1 }} out:fly={{ x:-400, duration: 200, opacity: 1 }}>
-    <div class="top">
-        <button on:click={handleNav}>
-            <span class="material-icons">close</span>
-        </button>
-        <p>Menu</p>
+    <div class="sidenav" in:fly={{ x: -400, duration: 200, delay: 200, opacity: 1 }} out:fly={{ x:-400, duration: 200, opacity: 1 }}>
+        <div class="top">
+            <button on:click={handleNav}>
+                <span class="material-icons">close</span>
+            </button>
+            <p>Menu</p>
+        </div>
+        <div class="bottom">
+            <a href="/"><span class="material-icons">view_day</span>Home</a>
+            <a href="/locations"><span class="material-icons">place</span>Locaties</a>
+            <a href="/login"><span class="material-icons">person</span>Inloggen</a>
+            <a href="/settings"><span class="material-icons">settings</span>Instellingen</a>    </div>
     </div>
-    <div class="bottom">
-        <a href="#d"><span class="material-icons">place</span>Locaties</a>
-        <a href="#c"><span class="material-icons">person</span>Inloggen</a>
-        <a href="#b"><span class="material-icons">settings</span>Instellingen</a> 
-    </div>
-</div>
 {/if}
 
 <style>
-    :global(.dark-mode) .sidenav .bottom a {
-        color: white;
-    }
-    :global(.dark-mode) .sidenav {
-        background: #222;
-    }
     nav {
         position: fixed;
         background: #e7334c;
@@ -111,6 +95,10 @@
         width: min(400px, calc(100% - 48px));
     }
 
+    :global(.dark-mode) .sidenav {
+        background: #222;
+    }
+
     /* The navigation menu links */
     .sidenav .top {
         display: flex;
@@ -142,6 +130,10 @@
         padding: 16px 16px;
         color: black;
         transition: 0.3s;
+    }
+    
+    :global(.dark-mode) .sidenav .bottom a {
+        color: white;
     }
 
     /* When you mouse over the navigation links, change their color */

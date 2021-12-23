@@ -1,39 +1,16 @@
 <script>
-    import { onMount } from "svelte";
+    import { onDestroy } from "svelte";
 
     export let query;
 
-    let mql;
-    let mqlListener;
-    let wasMounted = false;
     let matches = false;
-
-    onMount(() => {
-        wasMounted = true;
-        return () => {
-            removeActiveListener();
-        };
-    });
-
-    $: {
-        if (wasMounted) {
-            removeActiveListener();
-            addNewListener(query);
-        }
-    }
-
-    function addNewListener(query) {
-        mql = window.matchMedia(query);
-        mqlListener = v => matches = v.matches;
-        mql.addListener(mqlListener);
-        matches = mql.matches;
-    }
-
-    function removeActiveListener() {
-        if (mql && mqlListener) {
-            mql.removeListener(mqlListener);
-        }
-    }
+    let callback = e => matches = e.matches;
+    
+    let mql = window.matchMedia(query);
+    mql.addEventListener("change", callback);
+    matches = mql.matches;
+    
+    onDestroy(() => mql && callback && mql.removeEventListener(callback));
 </script>
 
 <slot {matches} />

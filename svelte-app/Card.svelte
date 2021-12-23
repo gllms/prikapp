@@ -8,27 +8,46 @@
     export let card = {};
     export let modal = false;
     export let editing = false;
+    export let index = 0;
     
     const dispatch = createEventDispatcher();
     let open = true;
     
     const editor = new Editor();
-    $: editor.setHTML(card.Content);
+    editor.setHTML(card.Content);
 
-    let categories = {
-        "video": {
+    let categories = [
+        {
+            "name": "video",
             "icon": "movie",
             "color": "darkblue"
         },
-        "text": {
+        {
+            "name": "text",
             "icon": "article",
             "color": "lightblue"
+        },
+        {
+            "name": "image",
+            "icon": "image",
+            "color": "red"
         }
-    };
+    ];
+
+    function saveCard() {
+        card.Content = editor.getHTML();
+        fetch("/saveCard", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(card)
+        });
+    }
 </script>
 
 {#if open}
-    <div class="card{modal ? ' modal' : ''}" on:click={() => dispatch("click")} in:fly={{ y: 1000, duration: 300, delay: 200, opacity: 1 }} out:fly={{ y: 1000, duration: 300, opacity: 1 }} tabindex="0">
+    <div class="card" class:modal on:click={() => dispatch("click")} in:fly={{ y: 100, duration: 300, delay: 200 + 100*index }} out:fly={{ y: 1000, duration: 300 }} tabindex="0">
         <div class={"top " + categories[card.Type].color}>
             {#if modal}
                 {#if !editing}
@@ -37,12 +56,8 @@
                     </button>
                 {/if}
 
-                <button on:click|stopPropagation={() => { editing = !editing; if (!editing) card.Content = editor.getHTML() }} style="right:0">
-                    {#if editing}
-                        <span class="material-icons">done</span>
-                    {:else}
-                        <span class="material-icons">edit</span>
-                    {/if}
+                <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0">
+                    <span class="material-icons">{editing ? "done" : "edit"}</span>
                 </button>
             {/if}
             <h1>
@@ -82,6 +97,7 @@
     :global(.dark-mode) .card {
         background: black;
     }
+
     .card {
         border-radius: 8px;
         background: white;
@@ -212,7 +228,7 @@
     :global(.bottom) .underline {
         text-decoration: underline;
     }
-
+    
     :global(.bottom) p {
         margin-top: 0;
         margin-bottom: 0;

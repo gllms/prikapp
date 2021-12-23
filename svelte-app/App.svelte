@@ -14,20 +14,10 @@
     };
 
     if($themeChoice == "donker"){
-        window.document.body.classList.add('dark-mode');
-    }
-    else if ($themeChoice == "licht"){
-        window.document.body.classList.remove('dark-mode');
+        window.document.body.classList.add("dark-mode");
     }
 </script>
 
 <Menu />
 
 <svelte:component this={routing[path] ?? NotFound} />
-
-<style>
-    :global(body) {
-        background: #eee;
-        margin-top: 48px;
-    }
-</style>
