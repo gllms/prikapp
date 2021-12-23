@@ -1,1 +1,1 @@
-worker:  cd $HOME/heroku_output && ./prikapp
+web:  cd $HOME/heroku_output && ./prikapp
