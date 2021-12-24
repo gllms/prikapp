@@ -15,7 +15,7 @@
     <button on:click={handleNav}>
         <span class="material-icons">menu</span>
     </button>
-    <img src="logo.png" alt="logo"/>
+    <img src="/images/icons-192.png" alt="logo"/>
 </nav>
 
 {#if navOpen}
@@ -45,6 +45,7 @@
         top: 0;
         box-sizing: border-box;
         z-index: 999;
+        user-select: none;
     }
 
     /* Hamburger Menu icon */	
