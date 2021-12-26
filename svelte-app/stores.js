@@ -5,3 +5,4 @@ export const freqChoice = writable(localStorage.getItem("freq"));
 export const themeChoice = writable(localStorage.getItem("theme"));
 
 export const overlayCount = writable(0);
+export const currentPage = writable("");

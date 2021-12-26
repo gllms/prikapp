@@ -10,7 +10,7 @@
     mql.addEventListener("change", callback);
     matches = mql.matches;
     
-    onDestroy(() => mql && callback && mql.removeEventListener(callback));
+    onDestroy(() => mql && callback && mql.removeEventListener("change", callback));
 </script>
 
 <slot {matches} />

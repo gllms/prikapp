@@ -1,5 +1,6 @@
 <script>
     import { overlayCount } from "./stores";
+    import Link from "./Link.svelte";
 
     let navOpen = false;
     
@@ -76,11 +77,11 @@
     <div class="top">
         <p>Menu</p>
     </div>
-    <div class="bottom">
-        <a href="/"><span class="material-icons">view_day</span>Home</a>
-        <a href="/locations"><span class="material-icons">place</span>Locaties</a>
-        <a href="/login"><span class="material-icons">person</span>Inloggen</a>
-        <a href="/settings"><span class="material-icons">settings</span>Instellingen</a>
+    <div class="bottom" on:click={ e => e.target.matches("a") && handleNav(false) }>
+        <Link href="/"><span class="material-icons">view_day</span>Home</Link>
+        <Link href="/locaties"><span class="material-icons">place</span>Locaties</Link>
+        <Link href="/login"><span class="material-icons">person</span>Inloggen</Link>
+        <Link href="/instellingen"><span class="material-icons">settings</span>Instellingen</Link>
     </div>
 </div>
 
@@ -171,7 +172,7 @@
         color: white;
     }
 
-    .sidenav .bottom a {
+    .sidenav .bottom :global(a) {
         display: flex;
         align-items: center;
         gap: 8px;
@@ -182,12 +183,12 @@
         transition: 0.3s;
     }
     
-    :global(.dark-mode) .sidenav .bottom a {
+    :global(.dark-mode) .sidenav .bottom :global(a) {
         color: white;
     }
 
     /* When you mouse over the navigation links, change their color */
-    .sidenav .bottom a:hover {
+    .sidenav .bottom :global(a):hover {
         background: lightgrey;
     }
 </style>

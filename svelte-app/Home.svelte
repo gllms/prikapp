@@ -3,6 +3,7 @@
     import Loading from "./Loading.svelte";
     import { fade } from "svelte/transition";
     import { overlayCount } from "./stores.js";
+    import { onDestroy } from "svelte";
 
     let cards = [];
     let promise = fetch("./cards.json").then(response => response.json()).then(response => cards = response);
@@ -12,6 +13,8 @@
 
     $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
     $: currentCard, cards = cards;
+
+    onDestroy(() => currentCard && $overlayCount--);
 </script>
 
 <div class="cards">
