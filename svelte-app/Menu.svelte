@@ -1,40 +1,88 @@
 <script>
     import { overlayCount } from "./stores";
-    import { fade, fly } from "svelte/transition";
 
     let navOpen = false;
     
-    function handleNav() {
-        navOpen = !navOpen;
-        $overlayCount += (navOpen ? 1 : -1);
-        document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
+    function handleNav(open) {
+        if (navOpen !== open)
+            $overlayCount += (open ? 1 : -1);
+        navOpen = open;
+    }
+
+    let sideNav;
+    let grey;
+    let sideNavWidth;
+
+    let startX;
+    let lastX;
+    let wasOpen = false;
+    let dragging = false;
+    let firstMove = true;
+
+    function touchStart(e) {
+        startX = lastX = e.touches[0].clientX;
+        wasOpen = navOpen;
+        
+        if (!wasOpen && startX < 25) {
+            dragging = true;
+            handleNav(true);
+            sideNav.style.transform = `translateX(${-sideNavWidth + lastX}px)`;
+            grey.style.opacity = 0;
+        }
+    }
+
+    function touchMove(e) {
+        lastX = e.touches[0].clientX;
+        
+        if (firstMove) {
+            sideNav.style.transitionDuration = grey.style.transitionDuration = "0s";
+            firstMove = false;
+        }
+        
+        if (!dragging && wasOpen && Math.abs(lastX - startX) > 25) {
+            dragging = true;
+            startX = lastX;
+        }
+        
+        if (dragging) {
+            let offset = wasOpen ? Math.min(lastX - startX, 0) : Math.min(-sideNavWidth + Math.max(lastX, 0), 0);
+            sideNav.style.transform = `translateX(${offset}px)`;
+            grey.style.opacity = 1 - -offset / sideNavWidth;
+        }
+    }
+
+    function touchEnd() {
+        sideNav.style.transitionDuration = grey.style.transitionDuration = grey.style.opacity = "";
+        if (dragging)
+            handleNav(lastX - startX > (wasOpen ? -100 : 100));
+        dragging = false;
+        firstMove = true;
+        sideNav.style.transform = "";
     }
 </script>
 
+<svelte:window on:touchstart={touchStart} on:touchmove={touchMove} on:touchend={touchEnd} />
+
 <nav>
-    <button on:click={handleNav}>
+    <button on:click={() => handleNav(true)}>
         <span class="material-icons">menu</span>
     </button>
     <img src="/images/icons-192.png" alt="logo"/>
 </nav>
 
-{#if navOpen}
-    <div class="grey" on:click={handleNav} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}></div>
+<div class="grey" class:open={navOpen} bind:this={grey} on:click={() => handleNav(false)}></div>
 
-    <div class="sidenav" in:fly={{ x: -400, duration: 200, delay: 200, opacity: 1 }} out:fly={{ x:-400, duration: 200, opacity: 1 }}>
-        <div class="top">
-            <button on:click={handleNav}>
-                <span class="material-icons">close</span>
-            </button>
-            <p>Menu</p>
-        </div>
-        <div class="bottom">
-            <a href="/"><span class="material-icons">view_day</span>Home</a>
-            <a href="/locations"><span class="material-icons">place</span>Locaties</a>
-            <a href="/login"><span class="material-icons">person</span>Inloggen</a>
-            <a href="/settings"><span class="material-icons">settings</span>Instellingen</a>    </div>
+<div class="sidenav" class:open={navOpen} bind:this={sideNav} bind:clientWidth={sideNavWidth}>
+    <div class="top">
+        <p>Menu</p>
     </div>
-{/if}
+    <div class="bottom">
+        <a href="/"><span class="material-icons">view_day</span>Home</a>
+        <a href="/locations"><span class="material-icons">place</span>Locaties</a>
+        <a href="/login"><span class="material-icons">person</span>Inloggen</a>
+        <a href="/settings"><span class="material-icons">settings</span>Instellingen</a>
+    </div>
+</div>
 
 <style>
     nav {
@@ -45,11 +93,10 @@
         top: 0;
         box-sizing: border-box;
         z-index: 999;
-        user-select: none;
     }
 
     /* Hamburger Menu icon */	
-    nav button, .sidenav .top button {
+    nav button {
         background: none;
         border: none;
         color: white;
@@ -63,11 +110,11 @@
         margin: 8px 0;
         left: 50%;
         transform: translateX(-50%);
-        user-select: none;
     }
 
     .grey {
         position: fixed;
+        display: none;
         width: 100%;
         height: 100%;
         z-index: 9999;
@@ -83,6 +130,10 @@
         }
     }
 
+    .grey.open {
+        display: block;
+    }
+
     /* The side navigation menu */
     .sidenav {
         height: 100%; 
@@ -94,6 +145,11 @@
         overflow-x: hidden; /* Disable horizontal scroll */
         transition: 0.5s;
         width: min(400px, calc(100% - 48px));
+        transform: translateX(-400px);
+    }
+
+    .sidenav.open {
+        transform: initial;
     }
 
     :global(.dark-mode) .sidenav {
@@ -113,13 +169,6 @@
         padding: 8px 16px;
         font-size: 36px;
         color: white;
-    }
-
-    /* Position and style the close button (top right corner) */
-    .sidenav .top button {
-        position: absolute;
-        right: 0;
-        top: 0;
     }
 
     .sidenav .bottom a {

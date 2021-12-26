@@ -7,9 +7,7 @@ body {
     overflow: overlay;
     background: #eee;
     margin-top: 48px;
-}
-
-.material-icons {
+    overscroll-behavior-x: none;
     user-select: none;
 }
 
