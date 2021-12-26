@@ -37,21 +37,16 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", event => {
     event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    return response;
-                }
-                return fetch(event.request).then(response => {
-                    return caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request.url, response.clone());
-                        return response;
-                    });
-                });
-            }).catch(error => {
-                if (new URL(event.request.url).pathname.split("/").pop().indexOf(".") < 0) {
-                    return caches.match("/");
-                }
-            })
+        fetch(event.request).then(async response => {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(event.request.url, response.clone());
+            return response;
+        }).catch(async () => {
+            const response = await caches.match(event.request);
+            if (response)
+                return response;
+            if (new URL(event.request.url).pathname.split("/").pop().indexOf(".") < 0)
+                return caches.match("/");
+        })
     );
 });
