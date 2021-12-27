@@ -38,9 +38,12 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", event => {
     event.respondWith(
         fetch(event.request).then(async response => {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put(event.request.url, response.clone());
-            return response;
+            if (response.ok) {
+                const cache = await caches.open(CACHE_NAME);
+                cache.put(event.request.url, response.clone());
+                return response;
+            }
+            throw new Error("Network request failed");
         }).catch(async () => {
             const response = await caches.match(event.request);
             if (response)
