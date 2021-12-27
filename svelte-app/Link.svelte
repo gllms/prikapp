@@ -13,6 +13,6 @@
     }
 </script>
 
-<a {href} on:click={handleClick}>
+<a {href} on:click={handleClick} draggable="false">
     <slot />
 </a>

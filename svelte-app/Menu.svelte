@@ -3,7 +3,7 @@
     import Link from "./Link.svelte";
 
     let navOpen = false;
-    
+
     function handleNav(open) {
         if (navOpen !== open)
             $overlayCount += (open ? 1 : -1);
@@ -19,12 +19,14 @@
     let wasOpen = false;
     let dragging = false;
     let firstMove = true;
+    let mouseDown = false;
 
     function touchStart(e) {
-        startX = lastX = e.touches[0].clientX;
+        startX = lastX = e.touches?.[0].clientX ?? e.clientX;
         wasOpen = navOpen;
+        mouseDown = true;
         
-        if (!wasOpen && startX < 25) {
+        if (!wasOpen && startX < 25 && !e.target.closest("nav")) {
             dragging = true;
             handleNav(true);
             sideNav.style.transform = `translateX(${-sideNavWidth + lastX}px)`;
@@ -33,36 +35,42 @@
     }
 
     function touchMove(e) {
-        lastX = e.touches[0].clientX;
-        
-        if (firstMove) {
-            sideNav.style.transitionDuration = grey.style.transitionDuration = "0s";
-            firstMove = false;
-        }
-        
-        if (!dragging && wasOpen && Math.abs(lastX - startX) > 25) {
-            dragging = true;
-            startX = lastX;
-        }
-        
-        if (dragging) {
-            let offset = wasOpen ? Math.min(lastX - startX, 0) : Math.min(-sideNavWidth + Math.max(lastX, 0), 0);
-            sideNav.style.transform = `translateX(${offset}px)`;
-            grey.style.opacity = 1 - -offset / sideNavWidth;
+        if (mouseDown) {
+            lastX = e.touches?.[0].clientX ?? e.clientX;
+            
+            if (firstMove) {
+                sideNav.style.transitionDuration = grey.style.transitionDuration = "0s";
+                firstMove = false;
+            }
+            
+            if (!dragging && wasOpen && Math.abs(lastX - startX) > 25) {
+                dragging = true;
+                startX = lastX;
+            }
+            
+            if (dragging) {
+                let offset = wasOpen ? Math.min(lastX - startX, 0) : Math.min(-sideNavWidth + Math.max(lastX, 0), 0);
+                sideNav.style.transform = `translateX(${offset}px)`;
+                grey.style.opacity = 1 - -offset / sideNavWidth;
+            }
         }
     }
 
-    function touchEnd() {
+    function touchEnd(e) {
         sideNav.style.transitionDuration = grey.style.transitionDuration = grey.style.opacity = "";
         if (dragging)
             handleNav(lastX - startX > (wasOpen ? -100 : 100));
-        dragging = false;
+        if (startX === lastX && e.target === grey) {
+            handleNav(false);
+            e.preventDefault();
+        }
+        dragging = mouseDown = false;
         firstMove = true;
         sideNav.style.transform = "";
     }
 </script>
 
-<svelte:window on:touchstart={touchStart} on:touchmove={touchMove} on:touchend={touchEnd} />
+<svelte:window on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} />
 
 <nav>
     <button on:click={() => handleNav(true)}>
@@ -71,7 +79,7 @@
     <img src="/images/icons-192.png" alt="logo"/>
 </nav>
 
-<div class="grey" class:open={navOpen} bind:this={grey} on:click={() => handleNav(false)}></div>
+<div class="grey" class:open={navOpen} bind:this={grey}></div>
 
 <div class="sidenav" class:open={navOpen} bind:this={sideNav} bind:clientWidth={sideNavWidth}>
     <div class="top">
