@@ -11,6 +11,18 @@ body {
     user-select: none;
 }
 
+.darkblue {
+    background: #142d49 !important;
+}
+
+.lightblue {
+    background: #79b9d5 !important;
+}
+
+.red {
+    background: #e7334c !important;
+}
+
 *::-webkit-scrollbar {
     width: 12px;
 }
