@@ -1,6 +1,7 @@
 <script>
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onDestroy } from "svelte";
     import { fly, fade } from "svelte/transition";
+    import { backOut } from "svelte/easing";
     import { Editor } from "typewriter-editor";
     import asRoot from "typewriter-editor/lib/asRoot";
     import Toolbar from "typewriter-editor/lib/Toolbar.svelte";
@@ -24,10 +25,70 @@
             body: JSON.stringify(card)
         });
     }
+
+    document.body.style.overscrollBehaviorY = "none";
+    onDestroy(() => {
+        document.body.style.overscrollBehaviorY = "";
+    });
+
+    let modal;
+    let grey;
+    let innerHeight;
+
+    let startY;
+    let lastY;
+    let dragging = false;
+    let firstMove = true;
+    let mouseDown = false;
+
+    function touchStart(e) {
+        startY = lastY = e.touches?.[0].clientY ?? e.clientY;
+        if (!(e.target.closest(".bottom") && !e.touches) && !grey.scrollTop)
+            mouseDown = true;
+    }
+
+    function touchMove(e) {
+        if (mouseDown) {
+            lastY = e.touches?.[0].clientY ?? e.clientY;
+            
+            if (firstMove) {
+                modal.style.transitionDuration = grey.style.transitionDuration = "0s";
+                firstMove = false;
+            }
+            
+            if (!dragging && Math.abs(lastY - startY) > 25) {
+                dragging = true;
+                startY = lastY;
+            }
+            
+            if (dragging) {
+                let offset = -Math.min(startY - lastY, 0);
+                modal.style.transform = `translateY(${offset}px)`;
+                grey.style.setProperty("--x", 1 - offset / (innerHeight/4));
+            }
+        }
+    }
+
+    function touchEnd(e) {
+        modal.style.transitionDuration = grey.style.transitionDuration = "";
+        if (dragging && lastY - startY > innerHeight/4) {
+            dispatch("back");
+        } else if (Math.abs(lastY - startY) < 25 && e.target === grey) {
+            dispatch("back");
+            e.preventDefault();
+        } else {
+            grey.style.setProperty("--x", "");
+            modal.style.transform = "";
+        }
+        dragging = mouseDown = false;
+        firstMove = true;
+    }
 </script>
 
-<div class="grey" on:click={(e) => { if (!editing && e.target.matches(".grey")) dispatch("back") }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
-    <div class="modal" on:click={() => dispatch("click")} in:fly={{ y: 100, duration: 300, delay: 200 }} out:fly={{ y: 1000, duration: 300 }} tabindex="0">
+<svelte:window bind:innerHeight on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd}/>
+
+<div class="grey" bind:this={grey} on:click={(e) => { if (!editing && e.target.matches(".grey")) dispatch("back") }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
+    <div class="modal" bind:this={modal} on:click={() => dispatch("click")} in:fly={{ y: 100, duration: 300, delay: 200, easing: backOut }} out:fly={{ y: 1000, duration: 300 }} tabindex="0">
         <div class={"top " + categories[card.Type].color}>
             {#if !editing}
                 <button on:click|stopPropagation={() => dispatch("back")}>
@@ -69,13 +130,13 @@
 
 <style>
     .grey {
+        --x: 1;
         position: fixed;
         width: 100%;
         height: 100%;
         z-index: 999;
         top: 0;
-        background-color: rgba(0, 0, 0, .95);
-        backdrop-filter: blur(10px);
+        background-color: rgba(0, 0, 0, calc(var(--x) * .95));
         transition: 0.5s;
         display: flex;
         align-items: center;
@@ -85,9 +146,9 @@
 
     @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
         .grey {
-            background-color: rgba(0, 0, 0, .8);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, calc(var(--x) * .8));
+            backdrop-filter: blur(calc(var(--x) * 10px));
+            -webkit-backdrop-filter: blur(calc(var(--x) * 10px));
         }
     }
 
@@ -101,11 +162,11 @@
         border-radius: 8px 8px 0 0;
         position: fixed;
         width: 100%;
-        min-height: calc(100% - 100px);
+        min-height: calc(100%);
         top: 100px;
         display: flex;
         flex-direction: column;
-        transition: .2s;
+        transition: .2s cubic-bezier(0.1, 1.75, 0.5, 1);
     }
 
     @media (min-width: 700px) {
