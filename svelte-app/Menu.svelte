@@ -60,7 +60,7 @@
         sideNav.style.transitionDuration = grey.style.transitionDuration = grey.style.opacity = "";
         if (dragging)
             handleNav(lastX - startX > (wasOpen ? -100 : 100));
-        if (startX === lastX && e.target === grey) {
+        if (Math.abs(lastX - startX) < 25 && e.target === grey) {
             handleNav(false);
             e.preventDefault();
         }
@@ -123,13 +123,14 @@
 
     .grey {
         position: fixed;
-        display: none;
         width: 100%;
         height: 100%;
         z-index: 9999;
         top: 0;
         background: rgba(0, 0, 0, .95);
+        opacity: 0;
         transition: 0.5s;
+        pointer-events: none;
     }
 
     @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
@@ -140,7 +141,8 @@
     }
 
     .grey.open {
-        display: block;
+        opacity: 1;
+        pointer-events: all;
     }
 
     /* The side navigation menu */
