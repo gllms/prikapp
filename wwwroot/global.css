@@ -11,6 +11,11 @@ body {
     user-select: none;
 }
 
+body.dark-mode {
+    background-color: #111;
+    color: white;
+}
+
 .darkblue {
     background: #142d49 !important;
 }
@@ -21,6 +26,46 @@ body {
 
 .red {
     background: #e7334c !important;
+}
+
+input[type="radio"] {
+    appearance: none;
+    position: relative;
+    cursor: pointer;
+}
+
+input[type="radio"]:before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid #e7334c;
+    box-sizing: border-box;
+}
+
+input[type="radio"]:after {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    border-radius: 50%;
+    left: 12px;
+    top: 12px;
+    background: #e7334c;
+    transition: .2s;
+}
+
+input[type="radio"]:checked:after {
+    width: 12px;
+    height: 12px;
+    left: 6px;
+    top: 6px;
+}
+
+label {
+    cursor: pointer;
 }
 
 *::-webkit-scrollbar {

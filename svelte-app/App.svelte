@@ -4,7 +4,7 @@
     import Settings from "./Settings.svelte";
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
-    import { themeChoice, currentPage } from "./stores.js";
+    import { themeChoice, currentPage, overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
 
     $currentPage = location.pathname.split(/[/?#]/g)[1];
@@ -16,9 +16,11 @@
         "locaties": Locations,
     };
 
-    if ($themeChoice == "donker") {
+    if ($themeChoice == "dark") {
         window.document.body.classList.add("dark-mode");
     }
+
+    $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
 
     window.addEventListener("popstate", handlePopState);
     onDestroy(() => {

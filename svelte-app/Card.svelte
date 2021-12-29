@@ -23,7 +23,7 @@
 
 <style>
     :global(.dark-mode) .card {
-        background: black;
+        background: #222;
     }
 
     .card {

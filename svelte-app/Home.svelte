@@ -10,8 +10,6 @@
     let promise = fetch("./cards.json").then(response => response.json()).then(response => cards = response);
 
     let currentCard = null;
-
-    $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
     $: currentCard, cards = cards;
 
     onDestroy(() => currentCard && $overlayCount--);
@@ -30,7 +28,7 @@
 </div>
 
 {#if currentCard}
-    <Modal card={currentCard} on:back={() => { currentCard = null; $overlayCount-- }} />
+    <Modal card={currentCard} on:back|once={() => { currentCard = null; $overlayCount-- }} />
 {/if}
 
 <style>

@@ -64,7 +64,7 @@
             if (dragging) {
                 let offset = -Math.min(startY - lastY, 0);
                 modal.style.transform = `translateY(${offset}px)`;
-                grey.style.setProperty("--x", 1 - offset / (innerHeight/4));
+                grey.style.background = `rgba(0, 0, 0, ${(1 - offset / innerHeight) * .95})`;
             }
         }
     }
@@ -77,8 +77,7 @@
             dispatch("back");
             e.preventDefault();
         } else {
-            grey.style.setProperty("--x", "");
-            modal.style.transform = "";
+            grey.style.background = modal.style.transform = "";
         }
         dragging = mouseDown = false;
         firstMove = true;
@@ -130,26 +129,17 @@
 
 <style>
     .grey {
-        --x: 1;
         position: fixed;
         width: 100%;
         height: 100%;
         z-index: 999;
         top: 0;
-        background-color: rgba(0, 0, 0, calc(var(--x) * .95));
+        background: rgba(0, 0, 0, .95);
         transition: 0.5s;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow-y: overlay;
-    }
-
-    @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-        .grey {
-            background-color: rgba(0, 0, 0, calc(var(--x) * .8));
-            backdrop-filter: blur(calc(var(--x) * 10px));
-            -webkit-backdrop-filter: blur(calc(var(--x) * 10px));
-        }
     }
 
     :global(.dark-mode) .modal {
@@ -160,7 +150,7 @@
         box-shadow: 2px 2px 5px rgba(0, 0, 0, .1);
         font-family: sans-serif;
         border-radius: 8px 8px 0 0;
-        position: fixed;
+        position: absolute;
         width: 100%;
         min-height: calc(100%);
         top: 100px;
@@ -222,6 +212,10 @@
         padding: 16px;
         user-select: text;
         flex-grow: 1;
+    }
+
+    :global(.dark-mode) .bottom {
+        background: #222;
     }
 
     .toolbar {

@@ -85,7 +85,7 @@
     <div class="top">
         <p>Menu</p>
     </div>
-    <div class="bottom" on:click={ e => e.target.matches("a") && handleNav(false) }>
+    <div class="bottom" on:click={ e => e.target.closest("a") && handleNav(false) }>
         <Link href="/"><span class="material-icons">view_day</span>Home</Link>
         <Link href="/locaties"><span class="material-icons">place</span>Locaties</Link>
         <Link href="/login"><span class="material-icons">person</span>Inloggen</Link>
@@ -95,7 +95,7 @@
 
 <style>
     nav {
-        position: fixed;
+        position: fixed !important;
         background: #e7334c;
         height: 48px;
         width: 100%;
@@ -133,13 +133,6 @@
         pointer-events: none;
     }
 
-    @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-        .grey {
-            background: rgba(0, 0, 0, .8);
-            backdrop-filter: blur(10px);
-        }
-    }
-
     .grey.open {
         opacity: 1;
         pointer-events: all;
@@ -147,16 +140,16 @@
 
     /* The side navigation menu */
     .sidenav {
-        height: 100%; 
+        height: 100%;
         position: fixed;
         z-index: 9999;
         top: 0;
         background: white;
         font-family: sans-serif;
-        overflow-x: hidden; /* Disable horizontal scroll */
-        transition: 0.5s;
+        transition: 0.5s cubic-bezier(0.1, 1.4, 0.5, 1);
         width: min(400px, calc(100% - 48px));
         transform: translateX(-400px);
+        box-shadow: -20px 0 0 0 white;
     }
 
     .sidenav.open {
@@ -165,6 +158,7 @@
 
     :global(.dark-mode) .sidenav {
         background: #222;
+        box-shadow: -20px 0 0 0 #222;
     }
 
     /* The navigation menu links */
@@ -173,6 +167,7 @@
         align-items: flex-end;
         background: #e7334c;
         height: 150px;
+        box-shadow: -20px 0 0 0 #e7334c;
     }
 
     .sidenav .top p {
@@ -188,9 +183,9 @@
         gap: 8px;
         text-decoration: none;
         font-size: 16px;
-        padding: 16px 16px;
-        color: black;
-        transition: 0.3s;
+        padding: 16px;
+        color: #222;
+        transition: 0.1s;
     }
     
     :global(.dark-mode) .sidenav .bottom :global(a) {
@@ -199,6 +194,10 @@
 
     /* When you mouse over the navigation links, change their color */
     .sidenav .bottom :global(a):hover {
-        background: lightgrey;
+        background: #eee;
+    }
+
+    :global(.dark-mode) .sidenav .bottom :global(a):hover {
+        background: #111;
     }
 </style>
