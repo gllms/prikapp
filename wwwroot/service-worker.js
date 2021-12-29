@@ -39,13 +39,16 @@ self.addEventListener("fetch", event => {
     event.respondWith(
         fetch(event.request).then(async response => {
             if (response.ok) {
+                let url = event.request.url;
+                if (new URL(event.request.url).origin === location.origin)
+                    url = url.split(/[?#]/g)[0];
                 const cache = await caches.open(CACHE_NAME);
-                cache.put(event.request.url, response.clone());
+                cache.put(url, response.clone());
                 return response;
             }
             throw new Error("Network request failed");
         }).catch(async () => {
-            const response = await caches.match(event.request);
+            const response = await caches.match(event.request, { ignoreSearch: true });
             if (response)
                 return response;
             if (new URL(event.request.url).pathname.split("/").pop().indexOf(".") < 0)
