@@ -4,20 +4,34 @@
     import Settings from "./Settings.svelte";
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
-    import { themeChoice  } from "./stores.js";
+    import { themeChoice, currentPage, overlayCount } from "./stores.js";
+    import { onDestroy } from "svelte";
 
-    let path = location.pathname.split(/[/?#]/g)[1];
+    $currentPage = location.pathname.split(/[/?#]/g)[1];
+    $: document.title = ($currentPage || "home") + " - prikapp";
+
     let routing = {
         "": Home,
-        "settings": Settings,
-        "locations": Locations,
+        "instellingen": Settings,
+        "locaties": Locations,
     };
 
-    if($themeChoice == "donker"){
+    if ($themeChoice == "dark") {
         window.document.body.classList.add("dark-mode");
+    }
+
+    $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
+
+    window.addEventListener("popstate", handlePopState);
+    onDestroy(() => {
+        window.removeEventListener("popstate", handlePopState);
+    });
+
+    function handlePopState(e) {
+        $currentPage = location.pathname.split(/[/?#]/g)[1];
     }
 </script>
 
 <Menu />
 
-<svelte:component this={routing[path] ?? NotFound} />
+<svelte:component this={routing[$currentPage] ?? NotFound} />
