@@ -17,7 +17,8 @@
     };
 
     if ($themeChoice == "dark") {
-        window.document.body.classList.add("dark-mode");
+        document.body.classList.add("dark-mode");
+        document.documentElement.style.setProperty("--color-scheme", "dark");
     }
 
     $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";

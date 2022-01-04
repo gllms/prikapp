@@ -5,7 +5,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --no-clear"
+    "prepare": "cd ./node_modules/typewriter-editor && npm install --production=false && npx tsc && npm install -D shx && npx shx cp src/*.svelte lib/"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "dotenv": "^10.0.0",
-    "sirv-cli": "^1.0.0",
-    "typewriter-editor": "^0.6.43"
+    "typewriter-editor": "https://github.com/gllms/typewriter/tarball/gllms"
   }
 }

@@ -1,9 +1,15 @@
+:root {
+    --color-scheme: light;
+    color-scheme: var(--color-scheme);
+}
+
 html, body {
     margin: 0;
 }
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+    overflow: auto;
     overflow: overlay;
     background: #eee;
     margin-top: 48px;
@@ -26,6 +32,26 @@ body.dark-mode {
 
 .red {
     background: #e7334c !important;
+}
+
+input[type="text"], input[type="url"] {
+    padding: 0.5em;
+    border-radius: 4px;
+    border: none;
+    background: #ddd;
+    box-shadow: 0 0 0 0 rgba(3, 169, 244, .5);
+    font-size: 16px;
+    transition: box-shadow .2s;
+}
+
+.dark-mode input[type="text"], .dark-mode input[type="url"] {
+    background: #333;
+    color: white;
+}
+
+input[type="text"]:focus, input[type="url"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(3, 169, 244, .5);
 }
 
 input[type="radio"] {

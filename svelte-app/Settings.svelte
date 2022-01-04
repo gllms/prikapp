@@ -10,10 +10,13 @@
             timeout = setTimeout(() => {
                 document.body.classList.remove("transforming");
             }, 1000);
-            if($themeChoice == "dark")
+            if($themeChoice == "dark") {
                 window.document.body.classList.add("dark-mode");
-            else if ($themeChoice == "light")
+                document.documentElement.style.setProperty("--color-scheme", "dark");
+            } else if ($themeChoice == "light") {
                 window.document.body.classList.remove("dark-mode");
+                document.documentElement.style.setProperty("--color-scheme", "light");
+            }
         }
         firstTime = false;
     }
