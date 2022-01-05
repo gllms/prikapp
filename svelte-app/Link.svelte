@@ -2,17 +2,14 @@
     import { currentPage } from "./stores";
 
     export let href;
-    $: if (href) {
-        href = href.replace(/^\//, "").split(/[?#]/g)[0];
-    }
 
     function handleClick(e) {
         e.preventDefault();
-        $currentPage = href;
-        history.pushState({}, document.title, "/" + href);
+        $currentPage = href.replace(/^\//, "").split(/[?#]/g)[0];
+        history.pushState({}, document.title, "/" + $currentPage);
     }
 </script>
 
-<a {href} on:click={handleClick} draggable="false">
+<a {href} on:click={handleClick} title={href} draggable="false">
     <slot />
 </a>

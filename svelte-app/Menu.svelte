@@ -26,7 +26,7 @@
         wasOpen = navOpen;
         mouseDown = true;
         
-        if (!wasOpen && startX < 25 && !e.target.closest("nav")) {
+        if (!wasOpen && startX < 16 && !e.target.closest("nav")) {
             dragging = true;
             handleNav(true);
             sideNav.style.transform = `translateX(${-sideNavWidth + lastX}px)`;

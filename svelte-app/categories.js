@@ -5,12 +5,12 @@ export default [
         "color": "darkblue"
     },
     {
-        "name": "text",
+        "name": "tekst",
         "icon": "article",
         "color": "lightblue"
     },
     {
-        "name": "image",
+        "name": "afbeelding",
         "icon": "image",
         "color": "red"
     }

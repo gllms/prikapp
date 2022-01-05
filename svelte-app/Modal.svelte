@@ -262,15 +262,15 @@
     <div class="modal" bind:this={modal} in:fly={{ y: 100, duration: 300, delay: 200, easing: backOut }} out:fly={{ y: 1000, duration: 300 }}>
         <div class={"top " + categories[card.Type].color}>
             {#if !editing}
-                <button on:click|stopPropagation={() => dispatch("back")}>
+                <button on:click|stopPropagation={() => dispatch("back")} title="terug">
                     <span class="material-icons">arrow_back</span>
                 </button>
             {/if}
 
-            <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0">
-                <span class="material-icons">{editing ? "done" : "edit"}</span>
+            <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0" title={editing ? "opslaan" : "bewerken"}>
+                <span class="material-icons">{editing ? "save" : "edit"}</span>
             </button>
-            <h1>
+            <h1 title={editing ? "titel" : undefined}>
                 <span class="material-icons">{categories[card.Type].icon}</span>
                 {#if editing}
                     <input type="text" bind:value={card.Title} />
@@ -285,7 +285,7 @@
                     <span class="material-icons" title="categorie">category</span>
                     <div class="types">
                         {#each categories as c, i}
-                            <label title="categorie"><input type="radio" bind:group={card.Type} value={i}/><span class="material-icons">{c.icon}</span></label>
+                            <label title="categorie: {c.name}"><input type="radio" bind:group={card.Type} value={i}/><span class="material-icons">{c.icon}</span></label>
                         {/each}
                     </div>
                     <label for="description" title="beschrijving"><span class="material-icons">short_text</span></label><input type="text" id="description" bind:value={card.Description} title="beschrijving" placeholder="beschrijving" />

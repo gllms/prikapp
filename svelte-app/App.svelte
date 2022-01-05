@@ -4,6 +4,7 @@
     import Settings from "./Settings.svelte";
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
+    import Toast from "./Toast.svelte";
     import { themeChoice, currentPage, overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
 
@@ -36,3 +37,5 @@
 <Menu />
 
 <svelte:component this={routing[$currentPage] ?? NotFound} />
+
+<Toast />
