@@ -27,7 +27,7 @@
     }
 
     function contextMenu(e) {
-        if (!e.target.closest("input[type='text'], input[type='number'], input[type='url'], [contenteditable='true']"))
+        if (!e.target.closest("input[type='text'], input[type='number'], input[type='url'], .rich-text"))
             e.preventDefault();
     }
 </script>

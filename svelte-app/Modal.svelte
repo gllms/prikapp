@@ -1,12 +1,12 @@
 <script>
-    import { createEventDispatcher, onDestroy } from "svelte";
+    import { createEventDispatcher, onDestroy, tick } from "svelte";
     import { fly, fade, slide, crossfade } from "svelte/transition";
     import { backOut } from "svelte/easing";
     import { Editor, Delta, normalizeRange, Source } from "typewriter-editor";
     import { paragraph, header, list, blockquote } from "typewriter-editor/lib/typesetting/lines";
     import { link, bold, italic } from "typewriter-editor/lib/typesetting/formats";
     import { br } from "typewriter-editor/lib/typesetting/embeds";
-    import { line } from "typewriter-editor/lib/typesetting";
+    import { format, line } from "typewriter-editor/lib/typesetting";
     import { h } from "typewriter-editor/lib/rendering/vdom";
     import { placeholder, smartEntry, smartQuotes } from "typewriter-editor/lib/modules";
     import asRoot from "typewriter-editor/lib/asRoot";
@@ -37,6 +37,15 @@
         editor.update(change);
     }
 
+    const underline = format({
+        name: "underline",
+        selector: "u",
+        styleSelector: "[style*='text-decoration:underline'], [style*='text-decoration: underline']",
+        commands: editor => () => editor.toggleTextFormat({ underline: true }),
+        shortcuts: "Mod+U",
+        render: (attributes, children) => h("span", { style: "text-decoration:underline" }, children),
+    });
+
     const image = line({
         name: "image",
         selector: "p.image",
@@ -62,34 +71,40 @@
     });
 
     const editor = window.editor = new Editor({
-        html: card.Content,
         types: {
             lines: [paragraph, header, list, blockquote, image, video],
-            formats: [link, bold, italic],
+            formats: [link, bold, italic, underline],
             embeds: [br]
         }
     });
 
-    let smartEntryDestroy = smartEntry()(editor).destroy;
-    let smartQuotesDestroy = smartQuotes(editor).destroy;
-    placeholder("type hier...")(editor);
+    editor.setDelta(new Delta(JSON.parse(card.Content).ops));
+
+    smartEntry()(editor);
+    smartQuotes(editor);
+    placeholder(() => editing ? "type hier..." : "(leeg)")(editor);
     let editing = false;
-    editor.on("root", () => {
+
+    $: if (editing) {
+        editor.enabled = true;
         let l = editor.doc.length-1;
         editor.select(l, Source.api);
         lastSelection = [l, l];
-        editor.root.addEventListener("select", () => {
-            if (editor.doc.selection !== null)
-                lastSelection = normalizeRange(editor.doc.selection)
-        });
-        editor.root.addEventListener("paste", e => insertImagesFromDataTransfer(e));
-        editor.root.addEventListener("drop", e => { e.preventDefault(); insertImagesFromDataTransfer(e) });
-    });
+        decorator = editor.modules.decorations.getDecorator("asdf");
+    } else {
+        editor.enabled = false;
+    }
 
     let currentInsert = null;
+    let decorator;
 
     let linkUrl = "";
     let linkText = "";
+    $: if (lastSelection && currentInsert && editor.getText(lastSelection)) {
+        linkText = editor.getText(lastSelection);
+    }
+
+    $: lastSelection, editor.modules.decorations && currentInsert && updateDecorator();
 
     let videoUrl = "";
     const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:(?:youtube\.\w{2,3}\/(?:watch.*(?:\?|&)v=|embed\/))|(?:youtu.be))([^&#]+)/;
@@ -100,11 +115,12 @@
     function insert(what) {
         if (what === "link") {
             linkUrl = "";
-            linkText = editor.doc.getText(lastSelection);
         } else if (what === "video") {
             videoUrl = "";
         }
         currentInsert = what;
+        updateDecorator();
+        editor.select(null, Source.api);
     }
 
     function applyInsert(e) {
@@ -119,7 +135,18 @@
     function cancelInsert(e) {
         e.target.closest("form").setAttribute("novalidate", "");
         currentInsert = null;
+        decorator.remove();
         editor.select(lastSelection, Source.api)
+    }
+
+    function updateDecorator() {
+        decorator.remove();
+        decorator = editor.modules.decorations.getDecorator("asdf");
+        if (lastSelection[0] === lastSelection[1])
+            decorator.insertDecoration(lastSelection[0]);
+        else
+            decorator.decorateText(lastSelection);
+        decorator.apply();
     }
 
     function uploadImage(e) {
@@ -178,18 +205,19 @@
         }
     }
 
+    function resize() {
+        document.querySelectorAll(".buttons > div").forEach(div => {
+            if (div.getBoundingClientRect().y == div.nextElementSibling?.getBoundingClientRect().y)
+                div.classList.add("vr");
+            else
+                div.classList.remove("vr");
+        });
+    }
+
+    $: editing && tick().then(resize);
+
     const [send, receive] = crossfade({
         duration: d => Math.sqrt(d * 1000)
-    });
-
-    document.body.style.overscrollBehaviorY = "none";
-
-    onDestroy(() => {
-        document.body.style.overscrollBehaviorY = "";
-
-        smartEntryDestroy();
-        smartQuotesDestroy();
-        editor.destroy();
     });
 
     let modal;
@@ -245,7 +273,7 @@
     }
 
     function saveCard() {
-        card.Content = editor.getHTML();
+        card.Content = JSON.stringify(editor.getDelta());
         fetch("/saveCard", {
             method: "POST",
             headers: {
@@ -254,9 +282,16 @@
             body: JSON.stringify(card)
         });
     }
+
+    document.body.style.overscrollBehaviorY = "none";
+
+    onDestroy(() => {
+        document.body.style.overscrollBehaviorY = "";
+        editor.destroy();
+    });
 </script>
 
-<svelte:window bind:innerHeight on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd}/>
+<svelte:window bind:innerHeight on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} on:resize={resize}/>
 
 <div class="grey" bind:this={grey} on:click={(e) => { if (!editing && e.target.matches(".grey")) dispatch("back") }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
     <div class="modal" bind:this={modal} in:fly={{ y: 100, duration: 300, delay: 200, easing: backOut }} out:fly={{ y: 1000, duration: 300 }}>
@@ -281,7 +316,7 @@
         </div>
         <div class="bottom">
             {#if editing}
-                <div class="options" transition:fade>
+                <div class="options" transition:slide>
                     <span class="material-icons" title="categorie">category</span>
                     <div class="types">
                         {#each categories as c, i}
@@ -290,57 +325,53 @@
                     </div>
                     <label for="description" title="beschrijving"><span class="material-icons">short_text</span></label><input type="text" id="description" bind:value={card.Description} title="beschrijving" placeholder="beschrijving" />
                 </div>
-                    <Toolbar {editor} let:active let:commands let:focus let:selection>
-                        <div class="toolbar" transition:fade>
-                            <div class="buttons">
-                                <div>
-                                    <button title="undo" on:click={commands.undo} disabled={selection, !editor.modules?.history?.hasUndo()}><span class="material-icons">undo</span></button>
-                                    <button title="redo" on:click={commands.redo} disabled={selection, !editor.modules?.history?.hasRedo()}><span class="material-icons">redo</span></button>
-                                </div>
-                                <span class="vr"></span>
-                                <div>
-                                    <button title="vet" class:active={active.bold} on:click={commands.bold} disabled={!focus}><span class="material-icons">format_bold</span></button>
-                                    <button title="schuin" class:active={active.italic} on:click={commands.italic} disabled={!focus}><span class="material-icons">format_italic</span></button>
-                                </div>
-                                <span class="vr"></span>
-                                <div>
-                                    <button title="titel" class:active={active.header === 1} on:click={commands.header1} disabled={!focus}><span class="material-icons">title</span></button>
-                                    <button title="ongeordende lijst" class:active={active.list === "bullet"} on:click={commands.bulletList} disabled={!focus}><span class="material-icons">format_list_bulleted</span></button>
-                                    <button title="geordende lijst" class:active={active.list === "ordered"} on:click={commands.orderedList} disabled={!focus}><span class="material-icons">format_list_numbered</span></button>
-                                    <button title="citaat" class:active={active.blockquote} on:click={commands.blockquote} disabled={!focus}><span class="material-icons">format_quote</span></button>
-                                </div>
-                                <span class="vr"></span>
-                                <div>
-                                    <button title="link" on:click={() => insert("link")} disabled={!focus}><span class="material-icons">link</span></button>
-                                    <button title="afbeelding" on:click={() => insert("image")} disabled={!focus}><span class="material-icons">image</span></button>
-                                    <button title="video" on:click={() => insert("video")} disabled={!focus}><span class="material-icons">movie</span></button>
-                                </div>
-                                <span class="vr"></span>
-                                <div>
-                                    <button title="opmaak wissen" on:click={clearFormat} disabled={!focus}><span class="material-icons">format_clear</span></button>
-                                </div>
+                <Toolbar {editor} let:active let:commands let:focus let:selection>
+                    <div class="toolbar" transition:slide>
+                        <div class="buttons">
+                            <div>
+                                <button title="undo" on:click={commands.undo} disabled={selection, !editor.modules?.history?.hasUndo()}><span class="material-icons">undo</span></button>
+                                <button title="redo" on:click={commands.redo} disabled={selection, !editor.modules?.history?.hasRedo()}><span class="material-icons">redo</span></button>
                             </div>
-                            {#if currentInsert}
-                                <form on:submit={applyInsert} transition:slide>
-                                    {#if currentInsert === "link"}
-                                        <label title="link"><span class="material-icons">link</span><input type="url" bind:value={linkUrl} placeholder="link" use:focusInsert required select/></label>
-                                        <label title="tekst"><span class="material-icons">text_fields</span><input type="text" bind:value={linkText} placeholder="tekst" required/></label>
-                                    {:else if currentInsert === "image"}
-                                        <label title="selecteer een afbeelding"><input type="file" accept=".apng,.avif,.gif,.jpg,.jpeg,.jfif,.pjpeg,.pjp,.png,.svg,.webp" on:change={uploadImage} /></label>
-                                    {:else if currentInsert === "video"}
-                                        <label title="link"><span class="material-icons">link</span><input type="url" bind:value={videoUrl} placeholder="link" on:input={checkVideo} use:focusInsert required select/></label>
-                                    {/if}
+                            <div>
+                                <button title="vet" class:active={active.bold} on:click={commands.bold} disabled={!focus}><span class="material-icons">format_bold</span></button>
+                                <button title="schuin" class:active={active.italic} on:click={commands.italic} disabled={!focus}><span class="material-icons">format_italic</span></button>
+                                <button title="onderstreept" class:active={active.underline} on:click={commands.underline} disabled={!focus}><span class="material-icons">format_underline</span></button>
+                            </div>
+                            <div>
+                                <button title="titel" class:active={active.header === 1} on:click={commands.header1} disabled={!focus}><span class="material-icons">title</span></button>
+                                <button title="ongeordende lijst" class:active={active.list === "bullet"} on:click={commands.bulletList} disabled={!focus}><span class="material-icons">format_list_bulleted</span></button>
+                                <button title="geordende lijst" class:active={active.list === "ordered"} on:click={commands.orderedList} disabled={!focus}><span class="material-icons">format_list_numbered</span></button>
+                                <button title="citaat" class:active={active.blockquote} on:click={commands.blockquote} disabled={!focus}><span class="material-icons">format_quote</span></button>
+                            </div>
+                            <div>
+                                <button title="link" on:click={() => insert("link")} disabled={!focus}><span class="material-icons">link</span></button>
+                                <button title="afbeelding" on:click={() => insert("image")} disabled={!focus}><span class="material-icons">image</span></button>
+                                <button title="video" on:click={() => insert("video")} disabled={!focus}><span class="material-icons">movie</span></button>
+                            </div>
+                            <div>
+                                <button title="opmaak wissen" on:click={clearFormat} disabled={!focus}><span class="material-icons">format_clear</span></button>
+                            </div>
+                        </div>
+                        {#if currentInsert}
+                            <form on:submit={applyInsert} transition:slide>
+                                {#if currentInsert === "link"}
+                                    <label title="link"><span class="material-icons">link</span><input type="url" bind:value={linkUrl} placeholder="link" use:focusInsert required/></label>
+                                    <label title="tekst"><span class="material-icons">text_fields</span><input type="text" bind:value={linkText} placeholder="tekst" required/></label>
+                                {:else if currentInsert === "image"}
+                                    <label title="selecteer een afbeelding"><span class="material-icons">file_upload</span><input type="file" accept=".apng,.avif,.gif,.jpg,.jpeg,.jfif,.pjpeg,.pjp,.png,.svg,.webp" on:change={uploadImage} required /></label>
+                                {:else if currentInsert === "video"}
+                                    <label title="link"><span class="material-icons">link</span><input type="url" bind:value={videoUrl} placeholder="link" on:input={checkVideo} use:focusInsert required/></label>
+                                {/if}
+                                <div>
                                     <button type="submit" title="toepassen"><span class="material-icons">done</span></button>
                                     <button type="button" title="annuleren" on:click={cancelInsert}><span class="material-icons">close</span></button>
-                                </form>
-                            {/if}
-                        </div>
-                    </Toolbar>
-                
-                <div class="rich-text" use:asRoot={editor}  in:receive={{key: "content"}} out:send={{key: "content"}}/>
-            {:else}
-                <div class="content" in:receive={{key: "content"}} out:send={{key: "content"}}>{@html card.Content}</div>
+                                </div>
+                            </form>
+                        {/if}
+                    </div>
+                </Toolbar>
             {/if}
+            <div class="rich-text" use:asRoot={editor} on:select={() => lastSelection = normalizeRange(editor.doc.selection) ?? lastSelection} on:paste={insertImagesFromDataTransfer} on:drop|preventDefault={insertImagesFromDataTransfer} />
         </div>
     </div>
 </div>
@@ -444,18 +475,6 @@
         background: #222;
     }
 
-    .content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        user-select: text;
-        box-sizing: border-box;
-        padding: 0 16px;
-        float: left;
-        width: 100%;
-        background: inherit;
-    }
-
     .options {
         display: grid;
         grid-template-columns: min-content auto;
@@ -503,19 +522,29 @@
         background: #222;
     }
 
-    .toolbar .buttons {
+    .buttons {
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
     }
 
-    .toolbar .buttons .vr {
-        width: 2px;
-        border-radius: 1px;
-        background: #ddd;
+    .buttons > div {
+        margin: 0 2px;
     }
 
-    :global(.dark-mode) .toolbar .buttons .vr {
+    .toolbar .buttons > :global(.vr:after) {
+        content: "";
+        position: absolute;
+        display: inline-block;
+        width: 2px;
+        height: 1.5em;
+        margin-top: 0.25em;
+        margin-left: 3px;
+        background: #ddd;
+        border-radius: 1px;
+    }
+
+    :global(.dark-mode) .toolbar .buttons > :global(.vr:after) {
         background: #333;
     }
 
@@ -578,6 +607,7 @@
         box-shadow: 0 0 0 0 rgba(3, 169, 244, .5);
         transition: box-shadow .2s;
         background: inherit;
+        user-select: text;
     }
 
     .rich-text:focus {
@@ -631,11 +661,12 @@
         pointer-events: none;
     }
 
-    .bottom :global(hr) {
-        margin: 1em 0;
+    .rich-text :global(.asdf) {
+        background: #ffff0080;
     }
 
-    .bottom :global(hr.selected), .bottom :global(.iframe-container.selected), .bottom :global(p.selected img) {
-        outline: 4px solid rgba(3, 169, 244, .5);
+    .rich-text :global(.asdf.embed) {
+        outline: 1px solid #ffff0080;
+        pointer-events: none;
     }
 </style>

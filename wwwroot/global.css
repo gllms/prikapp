@@ -94,13 +94,17 @@ label {
     cursor: pointer;
 }
 
-*::-webkit-scrollbar {
+::-webkit-scrollbar {
     width: 12px;
 }
 
-*::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
     background: #bbb;
     border: 4px solid rgba(0, 0, 0, 0);
     background-clip: padding-box;
     border-radius: 50vh;
+}
+
+::selection {
+    background: rgba(3, 169, 244, .5);
 }
