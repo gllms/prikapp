@@ -116,5 +116,16 @@ namespace prikapp
                 });
             });
         }
+
+        public static async Task RunQuery(string sql, Func<NpgsqlCommand, Task> action)
+        {
+            var url = new Uri(Environment.GetEnvironmentVariable("DATABASE_URL"));
+            var userInfo = url.UserInfo.Split(':');
+            await using var conn = new NpgsqlConnection($"Host={url.Host};Username={userInfo[0]};Password={userInfo[1]};Database={url.LocalPath.Substring(1)};SslMode=Require;TrustServerCertificate=true;");
+            await conn.OpenAsync();
+
+            await using (var cmd = new NpgsqlCommand(sql, conn))
+                await action(cmd);
+        }
     }
 }
