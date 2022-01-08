@@ -4,6 +4,7 @@
     import Settings from "./Settings.svelte";
     import Locations from "./Locations.svelte";
     import NotFound from "./NotFound.svelte";
+    import Toast from "./Toast.svelte";
     import { themeChoice, currentPage, overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
 
@@ -17,7 +18,8 @@
     };
 
     if ($themeChoice == "dark") {
-        window.document.body.classList.add("dark-mode");
+        document.body.classList.add("dark-mode");
+        document.documentElement.style.setProperty("--color-scheme", "dark");
     }
 
     $: document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
@@ -35,3 +37,5 @@
 <Menu />
 
 <svelte:component this={routing[$currentPage] ?? NotFound} />
+
+<Toast />

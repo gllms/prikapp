@@ -26,7 +26,7 @@
         wasOpen = navOpen;
         mouseDown = true;
         
-        if (!wasOpen && startX < 25 && !e.target.closest("nav")) {
+        if (!wasOpen && startX < 16 && !e.target.closest("nav")) {
             dragging = true;
             handleNav(true);
             sideNav.style.transform = `translateX(${-sideNavWidth + lastX}px)`;
@@ -95,7 +95,7 @@
 
 <style>
     nav {
-        position: fixed !important;
+        position: fixed;
         background: #e7334c;
         height: 48px;
         width: 100%;
@@ -141,7 +141,7 @@
     /* The side navigation menu */
     .sidenav {
         height: 100%;
-        position: fixed;
+        position: fixed !important;
         z-index: 9999;
         top: 0;
         background: white;
