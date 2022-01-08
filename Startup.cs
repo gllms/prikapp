@@ -60,7 +60,7 @@ namespace prikapp
 
                 endpoints.MapGet("/locations.json", async context =>
                 {
-                    var acceptedEncoding = context.Request.Headers["Accept-Encoding"];
+                    string acceptedEncoding = context.Request.Headers["Accept-Encoding"];
 
                     if (acceptedEncoding.Contains("gzip")) 
                     {
