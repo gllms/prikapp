@@ -1,50 +1,97 @@
 <script>
     import { overlayCount } from "./stores";
-    import { fade, fly } from "svelte/transition";
+    import Link from "./Link.svelte";
 
     let navOpen = false;
-    
-    function handleNav() {
-        navOpen = !navOpen;
-        $overlayCount = $overlayCount + (navOpen ? 1 : -1);
-        document.body.style.overflow = $overlayCount ? "hidden" : "overlay";
+
+    function handleNav(open) {
+        if (navOpen !== open)
+            $overlayCount += (open ? 1 : -1);
+        navOpen = open;
     }
-    
-    function handleNavWithKey(e) {
-        if (e.code === "F1") {
-            e.preventDefault();
-            handleNav();
+
+    let sideNav;
+    let grey;
+    let sideNavWidth;
+
+    let startX;
+    let lastX;
+    let wasOpen = false;
+    let dragging = false;
+    let firstMove = true;
+    let mouseDown = false;
+
+    function touchStart(e) {
+        startX = lastX = e.touches?.[0].clientX ?? e.clientX;
+        wasOpen = navOpen;
+        mouseDown = true;
+        
+        if (!wasOpen && startX < 16 && !e.target.closest("nav")) {
+            dragging = true;
+            handleNav(true);
+            sideNav.style.transform = `translateX(${-sideNavWidth + lastX}px)`;
+            grey.style.opacity = 0;
         }
-    } 
+    }
+
+    function touchMove(e) {
+        if (mouseDown) {
+            lastX = e.touches?.[0].clientX ?? e.clientX;
+            
+            if (firstMove) {
+                sideNav.style.transitionDuration = grey.style.transitionDuration = "0s";
+                firstMove = false;
+            }
+            
+            if (!dragging && wasOpen && Math.abs(lastX - startX) > 25) {
+                dragging = true;
+                startX = lastX;
+            }
+            
+            if (dragging) {
+                let offset = wasOpen ? Math.min(lastX - startX, 0) : Math.min(-sideNavWidth + Math.max(lastX, 0), 0);
+                sideNav.style.transform = `translateX(${offset}px)`;
+                grey.style.opacity = 1 - -offset / sideNavWidth;
+            }
+        }
+    }
+
+    function touchEnd(e) {
+        sideNav.style.transitionDuration = grey.style.transitionDuration = grey.style.opacity = "";
+        if (dragging)
+            handleNav(lastX - startX > (wasOpen ? -100 : 100));
+        if (Math.abs(lastX - startX) < 25 && e.target === grey) {
+            handleNav(false);
+            e.preventDefault();
+        }
+        dragging = mouseDown = false;
+        firstMove = true;
+        sideNav.style.transform = "";
+    }
 </script>
 
-<!-- Use keyboard to handle the sidenav -->
-<svelte:window on:keydown={handleNavWithKey} />
+<svelte:window on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} />
 
 <nav>
-    <button on:click={handleNav}>
+    <button on:click={() => handleNav(true)}>
         <span class="material-icons">menu</span>
     </button>
-    <img src="logo.png" alt="logo"/>
+    <img src="/images/icons-192.png" alt="logo"/>
 </nav>
 
-{#if navOpen}
-<div class="grey" on:click={handleNav} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}></div>
+<div class="grey" class:open={navOpen} bind:this={grey}></div>
 
-<div class="sidenav" in:fly={{ x: -400, duration: 200, delay: 200, opacity: 1 }} out:fly={{ x:-400, duration: 200, opacity: 1 }}>
+<div class="sidenav" class:open={navOpen} bind:this={sideNav} bind:clientWidth={sideNavWidth}>
     <div class="top">
-        <button on:click={handleNav}>
-            <span class="material-icons">close</span>
-        </button>
         <p>Menu</p>
     </div>
-    <div class="bottom">
-        <a href="#d"><span class="material-icons">place</span>Locaties</a>
-        <a href="#c"><span class="material-icons">person</span>Inloggen</a>
-        <a href="#b"><span class="material-icons">settings</span>Instellingen</a>
+    <div class="bottom" on:click={ e => e.target.closest("a") && handleNav(false) }>
+        <Link href="/"><span class="material-icons">view_day</span>Home</Link>
+        <Link href="/locaties"><span class="material-icons">place</span>Locaties</Link>
+        <Link href="/login"><span class="material-icons">person</span>Inloggen</Link>
+        <Link href="/instellingen"><span class="material-icons">settings</span>Instellingen</Link>
     </div>
 </div>
-{/if}
 
 <style>
     nav {
@@ -58,7 +105,7 @@
     }
 
     /* Hamburger Menu icon */	
-    nav button, .sidenav .top button {
+    nav button {
         background: none;
         border: none;
         color: white;
@@ -72,7 +119,6 @@
         margin: 8px 0;
         left: 50%;
         transform: translateX(-50%);
-        user-select: none;
     }
 
     .grey {
@@ -82,27 +128,37 @@
         z-index: 9999;
         top: 0;
         background: rgba(0, 0, 0, .95);
+        opacity: 0;
         transition: 0.5s;
+        pointer-events: none;
     }
 
-    @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-        .grey {
-            background: rgba(0, 0, 0, .8);
-            backdrop-filter: blur(10px);
-        }
+    .grey.open {
+        opacity: 1;
+        pointer-events: all;
     }
 
     /* The side navigation menu */
     .sidenav {
-        height: 100%; 
-        position: fixed;
+        height: 100%;
+        position: fixed !important;
         z-index: 9999;
         top: 0;
         background: white;
         font-family: sans-serif;
-        overflow-x: hidden; /* Disable horizontal scroll */
-        transition: 0.5s;
+        transition: 0.5s cubic-bezier(0.1, 1.4, 0.5, 1);
         width: min(400px, calc(100% - 48px));
+        transform: translateX(-400px);
+        box-shadow: -20px 0 0 0 white;
+    }
+
+    .sidenav.open {
+        transform: initial;
+    }
+
+    :global(.dark-mode) .sidenav {
+        background: #222;
+        box-shadow: -20px 0 0 0 #222;
     }
 
     /* The navigation menu links */
@@ -111,6 +167,7 @@
         align-items: flex-end;
         background: #e7334c;
         height: 150px;
+        box-shadow: -20px 0 0 0 #e7334c;
     }
 
     .sidenav .top p {
@@ -120,26 +177,27 @@
         color: white;
     }
 
-    /* Position and style the close button (top right corner) */
-    .sidenav .top button {
-        position: absolute;
-        right: 0;
-        top: 0;
-    }
-
-    .sidenav .bottom a {
+    .sidenav .bottom :global(a) {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 16px 16px;
         text-decoration: none;
         font-size: 16px;
-        color: black;
-        transition: 0.3s;
+        padding: 16px;
+        color: #222;
+        transition: 0.1s;
+    }
+    
+    :global(.dark-mode) .sidenav .bottom :global(a) {
+        color: white;
     }
 
     /* When you mouse over the navigation links, change their color */
-    .sidenav .bottom a:hover {
-        background: lightgrey;
+    .sidenav .bottom :global(a):hover {
+        background: #eee;
+    }
+
+    :global(.dark-mode) .sidenav .bottom :global(a):hover {
+        background: #111;
     }
 </style>
