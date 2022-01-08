@@ -85,7 +85,9 @@
     placeholder(() => editing ? "type hier..." : "(leeg)")(editor);
     let editing = false;
 
-    $: if (editing) {
+    $: editing && editStart();
+    function editStart() {
+        if (editing) {
         editor.enabled = true;
         let l = editor.doc.length-1;
         editor.select(l, Source.api);
@@ -94,15 +96,14 @@
     } else {
         editor.enabled = false;
     }
+    }
 
     let currentInsert = null;
     let decorator;
 
     let linkUrl = "";
     let linkText = "";
-    $: if (lastSelection && currentInsert && editor.getText(lastSelection)) {
-        linkText = editor.getText(lastSelection);
-    }
+    $: linkText = editor.doc.selection && currentInsert && editor.getText(lastSelection) || linkText;
 
     $: lastSelection, editor.modules.decorations && currentInsert && updateDecorator();
 
@@ -115,6 +116,7 @@
     function insert(what) {
         if (what === "link") {
             linkUrl = "";
+            linkText = editor.getText(lastSelection)
         } else if (what === "video") {
             videoUrl = "";
         }
