@@ -17,6 +17,7 @@
         "@testing-library/svelte": "^3.0.3",
         "babel-jest": "^27.4.6",
         "jest": "^27.4.7",
+        "jest-fetch-mock": "^3.0.3",
         "rollup": "^2.3.4",
         "rollup-plugin-css-only": "^3.1.0",
         "rollup-plugin-livereload": "^2.0.0",
@@ -31,12 +32,19 @@
     },
     "jest": {
         "transform": {
+            "^typewriter-editor/lib/.+\\.svelte$": "svelte-jester",
             "^.+\\.svelte$": "svelte-jester",
             "^.+\\.js$": "babel-jest"
         },
+        "transformIgnorePatterns": [
+            "/node_modules/(?!typewriter-editor/lib/)"
+        ],
         "moduleFileExtensions": [
             "js",
             "svelte"
+        ],
+        "setupFiles": [
+            "./test/setup.js"
         ],
         "setupFilesAfterEnv": [
             "@testing-library/jest-dom/extend-expect"

@@ -16,7 +16,7 @@ const fireEvent = require('@testing-library/svelte').fireEvent
 const Comp = require('../svelte-app/Card');
 
 const data = {
-    Type: "video",
+    Type: 0,
     Title: "De weg van het bloed",
     Description: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt",
     Content: "In deze video wordt uitgelegd wat er allemaal met jouw bloed gebeurt"
