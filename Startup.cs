@@ -41,9 +41,15 @@ namespace prikapp
             Content = content;
         }
     }
+    public class UserInformation
+    {
+        public string Username {get; set;}
+        public string Password {get; set;}
+    }
 
     public class Startup
     {
+        public List<string> Tokens {get; set;} = new List<string>();
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDefaultFiles()
@@ -111,6 +117,30 @@ namespace prikapp
                         cmd.Parameters.AddWithValue("content", card.Content);
                         cmd.Parameters.AddWithValue("id", card.Id);
                         await cmd.ExecuteNonQueryAsync();
+                    });
+                });
+                endpoints.MapPost("/login", async context =>
+                {
+                    // extract the card data from the request body
+                    var user = await context.Request.ReadFromJsonAsync<UserInformation>();
+                    await RunQuery("SELECT username FROM Users WHERE username = @username AND password = @password", async cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("username", user.Username);
+                        cmd.Parameters.AddWithValue("password", user.Password);
+                        var userCount = await cmd.ExecuteNonQueryAsync();
+                        Console.WriteLine(userCount);
+                        Console.WriteLine(user.Username);
+                        Console.WriteLine(user.Password);
+                        await using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                string guid = Guid.NewGuid().ToString();
+                                Console.WriteLine(guid);
+                                Tokens.Add(guid);
+                                await context.Response.Body.WriteAsync(System.Text.Encoding.ASCII.GetBytes(guid));
+                            }
+                        }
                     });
                 });
             });

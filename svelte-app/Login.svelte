@@ -1,14 +1,36 @@
 <script>
-    let username, password
+    let username, password, p
+
+    function login(username, password) {
+        p = fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "Username": username, 
+                "Password": password
+            })
+        })
+        .then(response => response.text())
+    }
 </script>
 
-<form class="LoginBox Form">
+<form class="LoginBox Form" on:submit|preventDefault={login(username, password)}>
     <h2>Inloggen</h2>
     <p>Gebruikersnaam</p>
     <input label="username" bind:value={username} type="text" placeholder="Uw gebruikersnaam" required />
     <p>Wachtwoord</p>
     <input label="password" bind:value={password} type="password" placeholder="Uw wachtwoord" required />
     <button type="submit">Inloggen</button>
+    {#await p then token}
+    {#if token === ""}
+        Mislukt
+    {:else}
+        Gelukt
+    {/if}
+    
+    {/await}
 </form>
 
 
