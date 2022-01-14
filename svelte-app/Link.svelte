@@ -1,12 +1,15 @@
 <script>
-    import { currentPage } from "./stores";
+    import goToPage from "./goToPage.js";
+    import { createEventDispatcher } from "svelte";
 
     export let href;
 
+    const dispatch = createEventDispatcher();
+
     function handleClick(e) {
         e.preventDefault();
-        $currentPage = href.replace(/^\//, "").split(/[?#]/g)[0];
-        history.pushState({}, document.title, "/" + $currentPage);
+        dispatch("click");
+        goToPage(href);
     }
 </script>
 

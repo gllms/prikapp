@@ -1,6 +1,7 @@
 <script>
     import { overlayCount } from "./stores";
     import Link from "./Link.svelte";
+    import { token } from "./stores.js";
 
     let navOpen = false;
 
@@ -68,6 +69,16 @@
         firstMove = true;
         sideNav.style.transform = "";
     }
+
+    function logOut() {
+        fetch("/logOut", {
+            method: "POST",
+            headers: {
+                "Authorization": $token
+            }
+        });
+        $token = "";
+    }
 </script>
 
 <svelte:window on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} />
@@ -88,7 +99,11 @@
     <div class="bottom" on:click={ e => e.target.closest("a") && handleNav(false) }>
         <Link href="/"><span class="material-icons">view_day</span>Home</Link>
         <Link href="/locaties"><span class="material-icons">place</span>Locaties</Link>
-        <Link href="/login"><span class="material-icons">person</span>Inloggen</Link>
+        {#if $token}
+            <Link href="/" on:click={logOut}><span class="material-icons">logout</span>Uitloggen</Link>
+        {:else}
+            <Link href="/login"><span class="material-icons">login</span>Inloggen</Link>
+        {/if}
         <Link href="/instellingen"><span class="material-icons">settings</span>Instellingen</Link>
     </div>
 </div>

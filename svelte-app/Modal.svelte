@@ -12,6 +12,7 @@
     import asRoot from "typewriter-editor/lib/asRoot";
     import Toolbar from "typewriter-editor/lib/Toolbar.svelte";
     import categories from "./categories.js";
+    import { token } from "./stores.js";
     
     export let card = {};
 
@@ -79,23 +80,24 @@
     });
 
     editor.setDelta(new Delta(JSON.parse(card.Content).ops));
+    editor.enabled = false;
 
     smartEntry()(editor);
     smartQuotes(editor);
     placeholder(() => editing ? "type hier..." : "(leeg)")(editor);
     let editing = false;
 
-    $: editing && editStart();
+    $: editing, editStart();
     function editStart() {
         if (editing) {
-        editor.enabled = true;
-        let l = editor.doc.length-1;
-        editor.select(l, Source.api);
-        lastSelection = [l, l];
-        decorator = editor.modules.decorations.getDecorator("asdf");
-    } else {
-        editor.enabled = false;
-    }
+            editor.enabled = true;
+            let l = editor.doc.length-1;
+            editor.select(l, Source.api);
+            lastSelection = [l, l];
+            decorator = editor.modules.decorations.getDecorator("highlight");
+        } else {
+            editor.enabled = false;
+        }
     }
 
     let currentInsert = null;
@@ -143,7 +145,7 @@
 
     function updateDecorator() {
         decorator.remove();
-        decorator = editor.modules.decorations.getDecorator("asdf");
+        decorator = editor.modules.decorations.getDecorator("highlight");
         if (lastSelection[0] === lastSelection[1])
             decorator.insertDecoration(lastSelection[0]);
         else
@@ -274,15 +276,20 @@
         firstMove = true;
     }
 
+    let message = "Er is iets misgegaan. Probeer het later opnieuw.";
     function saveCard() {
         card.Content = JSON.stringify(editor.getDelta());
         fetch("/saveCard", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": $token
             },
             body: JSON.stringify(card)
-        });
+        })
+        .then(res => res.text())
+        .then(res => res !== "Success" && alert(message))
+        .catch(() => alert(message));
     }
 
     document.body.style.overscrollBehaviorY = "none";
@@ -304,9 +311,11 @@
                 </button>
             {/if}
 
-            <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0" title={editing ? "opslaan" : "bewerken"}>
-                <span class="material-icons">{editing ? "save" : "edit"}</span>
-            </button>
+            {#if $token}
+                <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0" title={editing ? "opslaan" : "bewerken"}>
+                    <span class="material-icons">{editing ? "save" : "edit"}</span>
+                </button>
+            {/if}
             <h1 title={editing ? "titel" : undefined}>
                 <span class="material-icons">{categories[card.Type].icon}</span>
                 {#if editing}
@@ -498,12 +507,6 @@
         background: #333;
     }
 
-    .options .types label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
     .options .types input[type="radio"] {
         display: none;
     }
@@ -558,7 +561,7 @@
         height: 30px;
         width: 30px;
         background: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
         transition: background .2s;
     }
@@ -654,20 +657,23 @@
         max-width: 100%;
     }
     
-    .bottom :global(.iframe-container iframe) {
+    .rich-text :global(.iframe-container iframe) {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+    }
+
+    .rich-text.focus :global(.iframe-container iframe) {
         pointer-events: none;
     }
 
-    .rich-text :global(.asdf) {
+    .rich-text :global(.highlight) {
         background: #ffff0080;
     }
 
-    .rich-text :global(.asdf.embed) {
+    .rich-text :global(.highlight.embed) {
         outline: 1px solid #ffff0080;
         pointer-events: none;
     }
