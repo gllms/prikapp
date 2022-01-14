@@ -34,7 +34,7 @@ body.dark-mode {
     background: #e7334c !important;
 }
 
-input[type="text"], input[type="url"] {
+input[type="text"], input[type="url"], input[type="password"] {
     padding: 0.5em;
     border-radius: 4px;
     border: none;
@@ -44,12 +44,12 @@ input[type="text"], input[type="url"] {
     transition: box-shadow .2s;
 }
 
-.dark-mode input[type="text"], .dark-mode input[type="url"] {
+.dark-mode input[type="text"], .dark-mode input[type="url"], .dark-mode input[type="password"] {
     background: #333;
     color: white;
 }
 
-input[type="text"]:focus, input[type="url"]:focus {
+input[type="text"]:focus, input[type="url"]:focus, input[type="password"]:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(3, 169, 244, .5);
 }
@@ -92,6 +92,9 @@ input[type="radio"]:checked:after {
 
 label {
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 ::-webkit-scrollbar {

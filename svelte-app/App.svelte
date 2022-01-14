@@ -8,14 +8,15 @@
     import Toast from "./Toast.svelte";
     import { themeChoice, currentPage, overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
+    import { token } from "./stores.js";
 
     $currentPage = location.pathname.split(/[/?#]/g)[1];
     $: document.title = ($currentPage || "home") + " - prikapp";
 
     let routing = {
         "": Home,
-        "settings": Settings,
-        "locations": Locations,
+        "instellingen": Settings,
+        "locaties": Locations,
         "login": Login,
     };
 
@@ -33,6 +34,18 @@
 
     function handlePopState(e) {
         $currentPage = location.pathname.split(/[/?#]/g)[1];
+    }
+
+    if ($token) {
+        fetch("/checkToken", {
+            method: "POST",
+            headers: {
+                "Authorization": $token
+            }
+        })
+        .then(res => res.text())
+        .then(res => $token = res !== "Success" ? "" : $token)
+        .catch(() => $token = "");
     }
 </script>
 

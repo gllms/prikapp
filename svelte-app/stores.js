@@ -9,3 +9,6 @@ themeChoice.subscribe(value => localStorage.setItem("theme", value));
 
 export const overlayCount = writable(0);
 export const currentPage = writable("");
+
+export const token = writable(localStorage.getItem("token"));
+token.subscribe(value => localStorage.setItem("token", value));
