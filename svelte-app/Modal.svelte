@@ -12,7 +12,7 @@
     import asRoot from "typewriter-editor/lib/asRoot";
     import Toolbar from "typewriter-editor/lib/Toolbar.svelte";
     import categories from "./categories.js";
-    import { token } from "./stores.js";
+    import { cards, token } from "./stores.js";
     
     export let card = {};
 
@@ -71,7 +71,7 @@
         }
     });
 
-    const editor = window.editor = new Editor({
+    const editor = new Editor({
         types: {
             lines: [paragraph, header, list, blockquote, image, video],
             formats: [link, bold, italic, underline],
@@ -229,6 +229,7 @@
     let innerHeight;
 
     let startY;
+    let startElement;
     let lastY;
     let dragging = false;
     let firstMove = true;
@@ -236,6 +237,7 @@
 
     function touchStart(e) {
         startY = lastY = e.touches?.[0].clientY ?? e.clientY;
+        startElement = e.target;
         if (!(e.target.closest(".bottom") && !e.touches) && !grey.scrollTop)
             mouseDown = true;
     }
@@ -266,7 +268,7 @@
         modal.style.transitionDuration = grey.style.transitionDuration = "";
         if (dragging && lastY - startY > innerHeight/4 && !editing) {
             dispatch("back");
-        } else if (Math.abs(lastY - startY) < 25 && e.target === grey && !editing) {
+        } else if (Math.abs(lastY - startY) < 25 && e.target === grey && !startElement.closest(".modal") && !editing) {
             dispatch("back");
             e.preventDefault();
         } else {
@@ -277,6 +279,7 @@
     }
 
     let message = "Er is iets misgegaan. Probeer het later opnieuw.";
+    
     function saveCard() {
         card.Content = JSON.stringify(editor.getDelta());
         fetch("/saveCard", {
@@ -292,6 +295,26 @@
         .catch(() => alert(message));
     }
 
+    let deleting = false;
+
+    function deleteCard() {
+        fetch("/deleteCard", {
+            method: "POST",
+            headers: {
+                "Authorization": $token,
+                "Id": card.Id
+            }
+        })
+        .then(res => res.text())
+        .then(res => {
+            if (res === "Success") {
+                $cards = $cards.filter(c => c.Id !== card.Id);
+            } else {
+                alert(message);
+            }
+        });
+    }
+
     document.body.style.overscrollBehaviorY = "none";
 
     onDestroy(() => {
@@ -302,7 +325,7 @@
 
 <svelte:window bind:innerHeight on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} on:resize={resize}/>
 
-<div class="grey" bind:this={grey} on:click={(e) => { if (!editing && e.target.matches(".grey")) dispatch("back") }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
+<div class="grey" bind:this={grey} on:click={(e) => !editing && e.target.matches(".grey") && !startElement.closest(".modal") && dispatch("back")} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
     <div class="modal" bind:this={modal} in:fly={{ y: 100, duration: 300, delay: 200, easing: backOut }} out:fly={{ y: 1000, duration: 300 }}>
         <div class={"top " + categories[card.Type].color}>
             {#if !editing}
@@ -312,16 +335,28 @@
             {/if}
 
             {#if $token}
-                <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0" title={editing ? "opslaan" : "bewerken"}>
-                    <span class="material-icons">{editing ? "save" : "edit"}</span>
-                </button>
+                <div class="right">
+                    <div class="deleting" class:open={deleting}>
+                        <button title="toepassen" on:click={deleteCard}><span class="material-icons">done</span></button>
+                        {#if deleting}
+                            <button title="annuleren" on:click={() => deleting = false}><span class="material-icons">close</span></button>
+                        {:else}
+                            <button on:click|stopPropagation={() => deleting = true} title="verwijderen">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        {/if}
+                    </div>
+                    <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} title={editing ? "opslaan" : "bewerken"}>
+                        <span class="material-icons">{editing ? "save" : "edit"}</span>
+                    </button>
+                </div>
             {/if}
             <h1 title={editing ? "titel" : undefined}>
                 <span class="material-icons">{categories[card.Type].icon}</span>
                 {#if editing}
-                    <input type="text" bind:value={card.Title} />
+                    <input type="text" bind:value={card.Title} placeholder="titel" />
                 {:else}
-                    {card.Title}
+                    {card.Title || "(geen titel)"}
                 {/if}
             </h1>
         </div>
@@ -451,8 +486,38 @@
         color: white;
         padding: 12px;
         cursor: pointer;
+    }
+
+    .top > button, .top .right {
         position: absolute;
         top: 0;
+    }
+
+    .top .right {
+        right: 0;
+    }
+
+    .deleting {
+        display: inline-flex;
+        justify-content: flex-end;
+        border-radius: 48px;
+        padding: 6px;
+        gap: 16px;
+        overflow: hidden;
+        width: 24px;
+        transition: width .2s, background .3s;
+    }
+
+    .deleting.open {
+        background: rgba(0, 0, 0, .25);
+        width: 64px;
+        transition: width .2s, background .1s;
+    }
+
+    .deleting button {
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
     }
 
     .top h1 {
@@ -663,6 +728,7 @@
         left: 0;
         width: 100%;
         height: 100%;
+        background: black;
     }
 
     .rich-text.focus :global(.iframe-container iframe) {

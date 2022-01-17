@@ -5,12 +5,17 @@
     import { fade } from "svelte/transition";
     import { overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
+    import { cards } from "./stores.js";
 
-    let cards = [];
-    let promise = fetch("./cards.json").then(response => response.json()).then(response => cards = response);
+    let promise = fetch("./cards.json").then(response => response.json()).then(response => $cards = response);
 
     let currentCard = null;
-    $: currentCard, cards = cards;
+    $: currentCard, $cards = $cards;
+    $: $cards, checkCurrentCard();
+    function checkCurrentCard() {
+        if (!$cards.includes(currentCard))
+            currentCard = null;
+    }
 
     onDestroy(() => currentCard && $overlayCount--);
 </script>
@@ -19,10 +24,10 @@
     {#await promise}
         <Loading />
     {:then}
-        {#each cards as card, index (card.Id)}
+        {#each $cards as card, index (card.Id)}
             <Card card={card} {index} on:click={() => { currentCard = card; $overlayCount++ }}/>
         {/each}
-    {:catch error}
+    {:catch}
         <p>Laden van kaarten mislukt</p>
     {/await}
 </div>

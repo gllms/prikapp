@@ -13,11 +13,11 @@
     <div class={"top " + categories[card.Type].color}>
         <h1>
             <span class="material-icons">{categories[card.Type].icon}</span>
-            {card.Title}
+            {card.Title || "(geen titel)"}
         </h1>
     </div>
     <div class="bottom">
-        {card.Description}
+        {card.Description || "(geen beschrijving)"}
     </div>
 </div>
 

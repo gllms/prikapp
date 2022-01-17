@@ -1,5 +1,7 @@
 import { writable } from "svelte/store";
 
+export const cards = writable([]);
+
 export const ageChoice = writable(localStorage.getItem("age"));
 ageChoice.subscribe(value => localStorage.setItem("age", value));
 export const freqChoice = writable(localStorage.getItem("freq"));

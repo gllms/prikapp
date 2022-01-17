@@ -1,7 +1,6 @@
 <script>
-    import { overlayCount } from "./stores";
+    import { cards, overlayCount, currentPage, token } from "./stores.js";
     import Link from "./Link.svelte";
-    import { token } from "./stores.js";
 
     let navOpen = false;
 
@@ -79,6 +78,29 @@
         });
         $token = "";
     }
+
+    function createCard() {
+        fetch("/createCard", {
+            method: "POST",
+            headers: {
+                "Authorization": $token
+            }
+        })
+        .then(res => res.text())
+        .then(res => {
+            if (res) {
+                $cards = [{
+                    Id: parseInt(res),
+                    Type: 0,
+                    Title: "",
+                    Description: "",
+                    Content: "{}"
+                }, ...$cards];
+            } else {
+                alert("Er is iets misgegaan. Probeer het later opnieuw.");
+            }
+        });
+    }
 </script>
 
 <svelte:window on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} />
@@ -88,6 +110,16 @@
         <span class="material-icons">menu</span>
     </button>
     <img src="/images/icons-192.png" alt="logo"/>
+    <div>
+        {#if $token}
+            {#if $currentPage == ""}
+                <button on:click={createCard} title="kaart toevoegen">
+                    <span class="material-icons">add</span>
+                </button>
+            {/if}
+            <button on:click={logOut} title="uitloggen"><span class="material-icons">logout</span></button>
+        {/if}
+    </div>
 </nav>
 
 <div class="grey" class:open={navOpen} bind:this={grey}></div>
@@ -99,12 +131,10 @@
     <div class="bottom" on:click={ e => e.target.closest("a") && handleNav(false) }>
         <Link href="/"><span class="material-icons">view_day</span>Home</Link>
         <Link href="/locaties"><span class="material-icons">place</span>Locaties</Link>
-        {#if $token}
-            <Link href="/" on:click={logOut}><span class="material-icons">logout</span>Uitloggen</Link>
-        {:else}
+        <Link href="/instellingen"><span class="material-icons">settings</span>Instellingen</Link>
+        {#if !$token}
             <Link href="/login"><span class="material-icons">login</span>Inloggen</Link>
         {/if}
-        <Link href="/instellingen"><span class="material-icons">settings</span>Instellingen</Link>
     </div>
 </div>
 
@@ -126,6 +156,11 @@
         color: white;
         padding: 12px;
         cursor: pointer;
+    }
+
+    nav :nth-child(3) {
+        display: block;
+        float: right;
     }
 
     nav img {

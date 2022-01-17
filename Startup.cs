@@ -11,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using Npgsql;
 
-
 namespace prikapp
 {
     public class LocationData
@@ -183,6 +182,40 @@ namespace prikapp
                     else
                     {
                         await context.Response.WriteAsync("Error");
+                    }
+                });
+
+                endpoints.MapPost("/createCard", async context =>
+                {
+                    if (context.Request.Headers.TryGetValue("Authorization", out var authHeader) && Tokens.Contains(authHeader.ToString()))
+                    {
+                        try
+                        {
+                            await RunQuery(@"INSERT INTO Cards (type, title, description, content) VALUES (0, '', '', '{}') RETURNING id", async cmd =>
+                            {
+                                await using (var reader = await cmd.ExecuteReaderAsync())
+                                    if (await reader.ReadAsync())
+                                        await context.Response.WriteAsync(reader.GetInt32(0).ToString());
+                            });
+                        }
+                        catch {}
+                    }
+                });
+
+                endpoints.MapPost("/deleteCard", async context =>
+                {
+                    if (context.Request.Headers.TryGetValue("Authorization", out var authHeader) && Tokens.Contains(authHeader.ToString()) && context.Request.Headers.TryGetValue("Id", out var id))
+                    {
+                        try
+                        {
+                            await RunQuery("DELETE FROM Cards WHERE id = @id", async cmd =>
+                            {
+                                cmd.Parameters.AddWithValue("id", Int32.Parse(id));
+                                await cmd.ExecuteNonQueryAsync();
+                                await context.Response.WriteAsync("Success");
+                            });
+                        }
+                        catch {}
                     }
                 });
             });
