@@ -51,9 +51,18 @@ namespace prikapp
     public class Startup
     {
         public List<string> Tokens {get; set;} = new List<string>();
+        public void ConfigureServices(IServiceCollection services) 
+        {
+            services.AddResponseCompression(options => 
+            {
+                options.EnableForHttps = true;
+            });
+
+        }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseDefaultFiles()
+            app.UseResponseCompression()
+               .UseDefaultFiles()
                .UseStaticFiles()
                .UseRouting();
 
@@ -63,28 +72,6 @@ namespace prikapp
                 {
                     context.Response.Headers.Add("Content-Type", "text/html");
                     await context.Response.WriteAsync(System.IO.File.ReadAllText(@"./wwwroot/index.html"));
-                });
-
-                endpoints.MapGet("/locations.json", async context =>
-                {
-                    string acceptedEncoding = context.Request.Headers["Accept-Encoding"];
-
-                    if (acceptedEncoding.Contains("gzip")) 
-                    {
-                        context.Response.Headers.Add("Content-Encoding", "gzip");
-                        await context.Response.SendFileAsync("Locations.gz");
-                    } 
-                    else 
-                    {
-                        context.Response.Headers.Add("Content-Type", "application/json");
-                        await context.Response.WriteAsync(File.ReadAllText("Locations.json"));
-                    }
-                });
-
-                endpoints.MapGet("/postcodes.json", async context =>
-                {
-                    context.Response.Headers.Add("Content-Type", "application/json");
-                    await context.Response.WriteAsync(File.ReadAllText("./postcodes.json"));
                 });
 
                 endpoints.MapGet("/{**any}", async context =>

@@ -8,7 +8,7 @@
     $: currentPostcode = /\d{4}/.test(name) ? /\d{4}/.exec(name)[0] : "";
 
     let locations = [];
-    fetch("./locations.json").then(response => response.json()).then(response => locations = response);
+    fetch("./build/locations.json").then(response => response.json()).then(response => locations = response);
     $: if (coords[currentPostcode]) {
         locations.sort((a, b) => distance(coords[currentPostcode], coords[a.Postalcode.substring(0, 4)]) - distance(coords[currentPostcode], coords[b.Postalcode.substring(0, 4)]));
         locations = locations;
