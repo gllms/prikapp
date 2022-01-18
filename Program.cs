@@ -25,14 +25,7 @@ namespace prikapp
             List<LocationData> result = StripLocations(pageHTML);
             string jsonString = JsonSerializer.Serialize(result);
 
-            File.WriteAllText("Locations.json", jsonString);
-
-            using FileStream originalFileStream = File.Open("Locations.json", FileMode.Open);
-            using FileStream compressedFileStream = File.Create("Locations.gz");
-            using var compressor = new GZipStream(compressedFileStream, CompressionMode.Compress);
-            originalFileStream.CopyTo(compressor);
-            compressor.Close();
-
+            File.WriteAllText("./wwwroot/build/locations.json", jsonString);
 
             // start server
             CreateHostBuilder(args).Build().Run();
