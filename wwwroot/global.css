@@ -49,6 +49,16 @@ input[type="text"], input[type="url"], input[type="password"] {
     color: white;
 }
 
+input[type="text"]:disabled {
+    background: #ccc;
+    color: #aaa;
+}
+
+.dark-mode input[type="text"]:disabled {
+    background: #777;
+    color: #ccc;
+}
+
 input[type="text"]:focus, input[type="url"]:focus, input[type="password"]:focus {
     outline: none;
     box-shadow: 0 0 0 4px rgba(3, 169, 244, .5);
