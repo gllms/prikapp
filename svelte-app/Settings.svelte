@@ -1,5 +1,5 @@
 <script>
-    import { ageChoice, freqChoice, themeChoice } from "./stores.js";
+    import { textSize, themeChoice } from "./stores.js";
 
     let firstTime = true;
     let timeout;
@@ -27,26 +27,27 @@
 </div>
 
 <div class="settings">
-    <div class="legend">Leeftijd</div>
-    <label>Jong<input on:click={() => $ageChoice = "jong"} class="radios" type="radio"  bind:group={$ageChoice} value="jong" /></label>
-    <label>Middelbaar<input on:click= {() => $ageChoice = "middelbaar"} class="radios" type="radio"  bind:group={$ageChoice} value="middelbaar" /></label>
-    <label>Oud<input on:click= {() => $ageChoice = "oud"} class="radios" type="radio"  bind:group={$ageChoice} value="oud" /></label>
-
-    <div class="legend">Frequentie</div>
-    <label>Incidenteel<input on:click= {() => $freqChoice = "incidenteel"} class="radios" type="radio" bind:group={$freqChoice} value="incidenteel" /></label>
-    <label>Regelmatig<input on:click= {() => $freqChoice = "regelmatig"} class="radios" type="radio" bind:group={$freqChoice} value="regelmatig" /></label>
+    <div class="legend">Tekstgrootte</div>
+    <label>Normaal<input class="radios" type="radio"  bind:group={$textSize} value="100%" /></label>
+    <label>Groot<input class="radios" type="radio"  bind:group={$textSize} value="110%" /></label>
+    <label>Enorm<input class="radios" type="radio"  bind:group={$textSize} value="120%" /></label>
 
     <div class="legend">Thema</div>
-    <label>Licht<input on:click= {() => $themeChoice = "light"} class="radios" type="radio" bind:group={$themeChoice} value="light" /></label>
-    <label>Donker<input on:click= {() => $themeChoice = "dark"} class="radios" type="radio" bind:group={$themeChoice} value="dark" /></label>
+    <label>Licht<input class="radios" type="radio" bind:group={$themeChoice} value="light" /></label>
+    <label>Donker<input class="radios" type="radio" bind:group={$themeChoice} value="dark" /></label>
 </div>
 
 <style>
     .legend {
-        font-size: 14px;
+        font-size: 0.9em;
         font-weight: bold;
         margin: 32px 0 8px 16px;
         transition: color 1s;
+        color: black;
+    }
+
+    :global(.dark-mode) .legend {
+        color: white;
     }
 
     .settings {
@@ -54,6 +55,7 @@
         max-width: 500px;
         margin: 0 auto;
         color: black;
+        transition: font-size .2s;
     }
 
     :global(.dark-mode) .settings {
@@ -67,6 +69,7 @@
         padding: 12px 16px;
         border-bottom: 2px solid #ddd;
         transition: background .2s, color 1s;
+        color: black;
     }
 
     label:hover {
@@ -75,6 +78,7 @@
 
     :global(.dark-mode) label {
         border-bottom: 2px solid #222;
+        color: white;
     }
 
     :global(.dark-mode) label:hover {
@@ -92,11 +96,12 @@
 
     .top h1 {
         margin: 16px;
-        font-size: 24px;
+        font-size: 1.5em;
         color: white;
         display: flex;
         align-items: center;
         gap: 5px;
+        transition: font-size .2s;
     }
 
     :global(.transforming), :global(.transforming) * {

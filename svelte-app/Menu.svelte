@@ -1,6 +1,8 @@
 <script>
     import { cards, overlayCount, currentPage, token } from "./stores.js";
     import Link from "./Link.svelte";
+    import Loading from "./Loading.svelte";
+    import { fly } from "svelte/transition";
 
     let navOpen = false;
 
@@ -69,14 +71,24 @@
         sideNav.style.transform = "";
     }
 
+    let loggingOut = false;
     function logOut() {
+        if (loggingOut) return;
+        loggingOut = true;
         fetch("/logOut", {
             method: "POST",
             headers: {
                 "Authorization": $token
             }
+        }).then(res => {
+            setTimeout(() => {
+                $token = "";
+                loggingOut = false;
+            }, 1000);
+        }).catch(err => {
+            alert("Er is iets misgegaan bij het uitloggen. Probeer het later opnieuw.");
+            loggingOut = false;
         });
-        $token = "";
     }
 
     function createCard() {
@@ -106,20 +118,24 @@
 <svelte:window on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} />
 
 <nav>
-    <button on:click={() => handleNav(true)}>
+    <button on:click={() => handleNav(true)} title="menu">
         <span class="material-icons">menu</span>
     </button>
-    <img src="/images/icons-192.png" alt="logo"/>
-    <div>
-        {#if $token}
+    <img src="/images/icons-192.png" alt="logo" title="logo"/>
+    {#if $token}
+        <div transition:fly={{ x: 200 }}>
             {#if $currentPage == ""}
                 <button on:click={createCard} title="kaart toevoegen">
                     <span class="material-icons">add</span>
                 </button>
             {/if}
-            <button on:click={logOut} title="uitloggen"><span class="material-icons">logout</span></button>
-        {/if}
-    </div>
+            {#if loggingOut}
+                <Loading white/>
+            {:else}
+                <button on:click={logOut} title="uitloggen"><span class="material-icons">logout</span></button>
+            {/if}
+        </div>
+    {/if}
 </nav>
 
 <div class="grey" class:open={navOpen} bind:this={grey}></div>
@@ -149,7 +165,6 @@
         z-index: 999;
     }
 
-    /* Hamburger Menu icon */	
     nav button {
         background: none;
         border: none;
@@ -159,8 +174,12 @@
     }
 
     nav :nth-child(3) {
-        display: block;
+        display: flex;
         float: right;
+    }
+
+    nav :global(.loading) {
+        margin: 4px !important;
     }
 
     nav img {
@@ -223,7 +242,7 @@
     .sidenav .top p {
         margin: 0;
         padding: 8px 16px;
-        font-size: 36px;
+        font-size: 2.25em;
         color: white;
     }
 
@@ -232,7 +251,7 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
-        font-size: 16px;
+        font-size: 1em;
         padding: 16px;
         color: #222;
         transition: 0.1s;

@@ -6,7 +6,7 @@
     import Login from "./Login.svelte";
     import NotFound from "./NotFound.svelte";
     import Toast from "./Toast.svelte";
-    import { themeChoice, currentPage, overlayCount } from "./stores.js";
+    import { textSize, themeChoice, currentPage, overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
     import { token } from "./stores.js";
 
@@ -19,6 +19,8 @@
         "locaties": Locations,
         "login": Login,
     };
+
+    $: document.body.style.fontSize = $textSize;
 
     if ($themeChoice == "dark") {
         document.body.classList.add("dark-mode");

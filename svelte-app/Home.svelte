@@ -2,7 +2,7 @@
     import Card from "./Card.svelte";
     import Modal from "./Modal.svelte";
     import Loading from "./Loading.svelte";
-    import { fade } from "svelte/transition";
+    import { flip } from "svelte/animate";
     import { overlayCount } from "./stores.js";
     import { onDestroy } from "svelte";
     import { cards } from "./stores.js";
@@ -25,7 +25,9 @@
         <Loading />
     {:then}
         {#each $cards as card, index (card.Id)}
-            <Card card={card} {index} on:click={() => { currentCard = card; $overlayCount++ }}/>
+            <div animate:flip={{ duration: 500 }}>
+                <Card card={card} {index} on:click={() => { currentCard = card; $overlayCount++ }}/>
+            </div>
         {/each}
     {:catch}
         <p>Laden van kaarten mislukt</p>

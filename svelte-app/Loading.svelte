@@ -1,4 +1,8 @@
-<div class="loading"><div></div><div></div><div></div><div></div></div>
+<script>
+    export let white = false;
+</script>
+
+<div class="loading" class:white={white}><div></div><div></div><div></div><div></div></div>
 
 <style>
     .loading {
@@ -19,6 +23,10 @@
         border-radius: 50%;
         animation: loading 1.2s cubic-bezier(0.57, 0.13, 0.38, 0.8) infinite;
         border-color: #e7334c transparent transparent transparent;
+    }
+
+    .loading.white div {
+        border-color: white transparent transparent transparent;
     }
 
     .loading div:nth-child(1) {

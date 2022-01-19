@@ -526,14 +526,13 @@
         width: 100%;
         margin: 16px;
         gap: 5px;
-        font-size: 24px;
+        font-size: 1.5em;
         color: white;
     }
 
     .top h1 input {
         flex-grow: 1;
         padding: 0;
-        font-size: 24px;
         background: none;
         border: none;
         color: white;
@@ -686,6 +685,7 @@
     }
 
     .rich-text :global(.placeholder) {
+        display: block;
         position: relative;
         cursor: text;
     }

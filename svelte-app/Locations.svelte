@@ -1,7 +1,7 @@
 <script>
     import MediaQuery from "./MediaQuery.svelte";
     import Loading from "./Loading.svelte";
-    import { slide } from "svelte/transition";
+    import { slide, fly } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
 
     let name = "";
@@ -28,17 +28,19 @@
     }
 
     let selected = -1;
+
+    $: flyIfLittle = filteredLocations.length < 10 ? fly : () => {};
 </script>
 
 <div class="cards">
     <div class="search">
         <label title="postcode"><span class="material-icons">mail</span><input type="text" bind:value={name} disabled={!coords || !locations} placeholder="0000 AB"/></label>
-        <label title="zoekradius"><span class="material-icons">adjust</span><input type="range" bind:value={range} min="0" max="400" disabled={!currentPostcode} /><input type="text" pattern="\d+" bind:value={range} min="0" max="400" disabled={!currentPostcode} style="width:3em;text-align:right"/>km</label>
+        <label title="zoekradius"><span class="material-icons">adjust</span><input type="range" bind:value={range} min="0" max="100" disabled={!currentPostcode} /><input type="text" pattern="\d+" bind:value={range} min="0" max="400" disabled={!currentPostcode} style="width:3em;text-align:right"/>km</label>
     </div>
     {#if locations.length}
         {#if filteredLocations.length}
             {#each filteredLocations as location, i}
-                <div class="card" class:selected={i === selected} on:click={() => selected = selected === i ? -1 : i}>
+                <div class="card" class:selected={i === selected} on:click={() => selected = selected === i ? -1 : i} transition:flyIfLittle|local={{ y: 100, duration: 300 }}>
                     <div class="top">
                         <h1><span class="material-icons">push_pin</span> {@html location.LocationName}</h1>
                     </div>
@@ -69,7 +71,7 @@
                 </div>
             {/each}
         {:else}
-            <p>Geen locaties gevonden</p>
+            <p class="zeroFound"><span class="material-icons">info</span>Geen locaties gevonden</p>
         {/if}
     {:else}
         <Loading />
@@ -126,8 +128,8 @@
         }
 
         .card.selected {
-            margin-bottom: -48.59px;
-            margin-top: 50px;
+            margin-bottom: 2.41px;
+            transform: scale(1.01) !important;
         }
     }
 
@@ -142,11 +144,12 @@
         display: flex;
         align-items: flex-end;
         border-radius: 8px 8px 0 0;
+        overflow: hidden;
     }
 
     .top h1 {
         margin: 8px;
-        font-size: 24px;
+        font-size: 1.5em;
         color: white;
         display: flex;
         align-items: center;
@@ -196,5 +199,14 @@
     .grey.open {
         opacity: 1;
         pointer-events: all;
+    }
+
+    .zeroFound {
+        text-align: center;
+        grid-column: span 2;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
     }
 </style>

@@ -29,9 +29,9 @@
 
 <form on:submit|preventDefault={login(username, password)}>
     <h1>Login</h1>
-    <label><span class="material-icons">person</span><input bind:value={username} type="text" placeholder="gebruikersnaam" required /></label>
-    <label><span class="material-icons">lock</span><input bind:value={password} type="password" placeholder="wachtwoord" required /></label>
-    <button type="submit">Inloggen</button>
+    <label title="gebruikersnaam"><span class="material-icons">person</span><input bind:value={username} type="text" placeholder="gebruikersnaam" required /></label>
+    <label title="wachtwoord"><span class="material-icons">lock</span><input bind:value={password} type="password" placeholder="wachtwoord" required /></label>
+    <button type="submit"><span class="material-icons">login</span>Inloggen</button>
     {#await p then t}
         {#if !t}
             <p class="error">Inloggen mislukt</p>
@@ -54,10 +54,14 @@
         box-shadow: 2px 2px 5px rgba(0, 0, 0, .1);
     }
 
+    :global(.dark-mode) form {
+        background: #222;
+    }
+
     h1 {
         margin: 0;
         text-align: center;
-        font-size: 24px;
+        font-size: 1.5em;
     }
 
     button {
@@ -67,9 +71,13 @@
         padding: 8px;
         background: #e7334c;
         color: white;
-        font-size: 16px;
+        font-size: 1em;
         border-radius: 4px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
     }
 
     .error {
