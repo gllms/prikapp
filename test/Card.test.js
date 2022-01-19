@@ -27,3 +27,15 @@ test('Checks if the cards contains the right information after creation', () => 
 
     expect(getByText(data["Description"])).toBeInTheDocument()
 })
+
+test("Checks if the card has the right icon", () => {
+    const {getByText} = render(Comp, {card: data});
+
+    expect(getByText("movie")).toBeInTheDocument();
+});
+
+test("Checks if the title isn't empty", () => {
+    const {queryByText} = render(Comp, {card: data});
+
+    expect(queryByText("(geen titel)")).not.toBeInTheDocument();
+});
