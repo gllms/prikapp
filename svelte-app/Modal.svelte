@@ -12,6 +12,7 @@
     import asRoot from "typewriter-editor/lib/asRoot";
     import Toolbar from "typewriter-editor/lib/Toolbar.svelte";
     import categories from "./categories.js";
+    import { cards, token } from "./stores.js";
     
     export let card = {};
 
@@ -70,7 +71,7 @@
         }
     });
 
-    const editor = window.editor = new Editor({
+    const editor = new Editor({
         types: {
             lines: [paragraph, header, list, blockquote, image, video],
             formats: [link, bold, italic, underline],
@@ -79,23 +80,24 @@
     });
 
     editor.setDelta(new Delta(JSON.parse(card.Content).ops));
+    editor.enabled = false;
 
     smartEntry()(editor);
     smartQuotes(editor);
     placeholder(() => editing ? "type hier..." : "(leeg)")(editor);
     let editing = false;
 
-    $: editing && editStart();
+    $: editing, editStart();
     function editStart() {
         if (editing) {
-        editor.enabled = true;
-        let l = editor.doc.length-1;
-        editor.select(l, Source.api);
-        lastSelection = [l, l];
-        decorator = editor.modules.decorations.getDecorator("asdf");
-    } else {
-        editor.enabled = false;
-    }
+            editor.enabled = true;
+            let l = editor.doc.length-1;
+            editor.select(l, Source.api);
+            lastSelection = [l, l];
+            decorator = editor.modules.decorations.getDecorator("highlight");
+        } else {
+            editor.enabled = false;
+        }
     }
 
     let currentInsert = null;
@@ -143,7 +145,7 @@
 
     function updateDecorator() {
         decorator.remove();
-        decorator = editor.modules.decorations.getDecorator("asdf");
+        decorator = editor.modules.decorations.getDecorator("highlight");
         if (lastSelection[0] === lastSelection[1])
             decorator.insertDecoration(lastSelection[0]);
         else
@@ -227,6 +229,7 @@
     let innerHeight;
 
     let startY;
+    let startElement;
     let lastY;
     let dragging = false;
     let firstMove = true;
@@ -234,6 +237,7 @@
 
     function touchStart(e) {
         startY = lastY = e.touches?.[0].clientY ?? e.clientY;
+        startElement = e.target;
         if (!(e.target.closest(".bottom") && !e.touches) && !grey.scrollTop)
             mouseDown = true;
     }
@@ -264,7 +268,7 @@
         modal.style.transitionDuration = grey.style.transitionDuration = "";
         if (dragging && lastY - startY > innerHeight/4 && !editing) {
             dispatch("back");
-        } else if (Math.abs(lastY - startY) < 25 && e.target === grey && !editing) {
+        } else if (Math.abs(lastY - startY) < 25 && e.target === grey && !startElement.closest(".modal") && !editing) {
             dispatch("back");
             e.preventDefault();
         } else {
@@ -274,14 +278,40 @@
         firstMove = true;
     }
 
+    let message = "Er is iets misgegaan. Probeer het later opnieuw.";
+    
     function saveCard() {
         card.Content = JSON.stringify(editor.getDelta());
         fetch("/saveCard", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": $token
             },
             body: JSON.stringify(card)
+        })
+        .then(res => res.text())
+        .then(res => res !== "Success" && alert(message))
+        .catch(() => alert(message));
+    }
+
+    let deleting = false;
+
+    function deleteCard() {
+        fetch("/deleteCard", {
+            method: "POST",
+            headers: {
+                "Authorization": $token,
+                "Id": card.Id
+            }
+        })
+        .then(res => res.text())
+        .then(res => {
+            if (res === "Success") {
+                $cards = $cards.filter(c => c.Id !== card.Id);
+            } else {
+                alert(message);
+            }
         });
     }
 
@@ -295,7 +325,7 @@
 
 <svelte:window bind:innerHeight on:touchstart={touchStart} on:mousedown={touchStart} on:touchmove={touchMove} on:mousemove={touchMove} on:touchend={touchEnd} on:mouseup={touchEnd} on:resize={resize}/>
 
-<div class="grey" bind:this={grey} on:click={(e) => { if (!editing && e.target.matches(".grey")) dispatch("back") }} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
+<div class="grey" bind:this={grey} on:click={(e) => !editing && e.target.matches(".grey") && !startElement.closest(".modal") && dispatch("back")} in:fade={{ duration: 200 }} out:fade={{ duration: 200, delay: 200 }}>
     <div class="modal" bind:this={modal} in:fly={{ y: 100, duration: 300, delay: 200, easing: backOut }} out:fly={{ y: 1000, duration: 300 }}>
         <div class={"top " + categories[card.Type].color}>
             {#if !editing}
@@ -304,15 +334,29 @@
                 </button>
             {/if}
 
-            <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} style="right:0" title={editing ? "opslaan" : "bewerken"}>
-                <span class="material-icons">{editing ? "save" : "edit"}</span>
-            </button>
+            {#if $token}
+                <div class="right">
+                    <div class="deleting" class:open={deleting}>
+                        <button title="toepassen" on:click={deleteCard}><span class="material-icons">done</span></button>
+                        {#if deleting}
+                            <button title="annuleren" on:click={() => deleting = false}><span class="material-icons">close</span></button>
+                        {:else}
+                            <button on:click|stopPropagation={() => deleting = true} title="verwijderen">
+                                <span class="material-icons">delete</span>
+                            </button>
+                        {/if}
+                    </div>
+                    <button on:click|stopPropagation={() => { editing = !editing; if (!editing) saveCard() }} title={editing ? "opslaan" : "bewerken"}>
+                        <span class="material-icons">{editing ? "save" : "edit"}</span>
+                    </button>
+                </div>
+            {/if}
             <h1 title={editing ? "titel" : undefined}>
                 <span class="material-icons">{categories[card.Type].icon}</span>
                 {#if editing}
-                    <input type="text" bind:value={card.Title} />
+                    <input type="text" bind:value={card.Title} placeholder="titel" />
                 {:else}
-                    {card.Title}
+                    {card.Title || "(geen titel)"}
                 {/if}
             </h1>
         </div>
@@ -442,8 +486,38 @@
         color: white;
         padding: 12px;
         cursor: pointer;
+    }
+
+    .top > button, .top .right {
         position: absolute;
         top: 0;
+    }
+
+    .top .right {
+        right: 0;
+    }
+
+    .deleting {
+        display: inline-flex;
+        justify-content: flex-end;
+        border-radius: 48px;
+        padding: 6px;
+        gap: 16px;
+        overflow: hidden;
+        width: 24px;
+        transition: width .2s, background .3s;
+    }
+
+    .deleting.open {
+        background: rgba(0, 0, 0, .25);
+        width: 64px;
+        transition: width .2s, background .1s;
+    }
+
+    .deleting button {
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
     }
 
     .top h1 {
@@ -452,14 +526,13 @@
         width: 100%;
         margin: 16px;
         gap: 5px;
-        font-size: 24px;
+        font-size: 1.5em;
         color: white;
     }
 
     .top h1 input {
         flex-grow: 1;
         padding: 0;
-        font-size: 24px;
         background: none;
         border: none;
         color: white;
@@ -496,12 +569,6 @@
 
     :global(.dark-mode) .options .types {
         background: #333;
-    }
-
-    .options .types label {
-        display: flex;
-        align-items: center;
-        gap: 4px;
     }
 
     .options .types input[type="radio"] {
@@ -558,7 +625,7 @@
         height: 30px;
         width: 30px;
         background: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
         transition: background .2s;
     }
@@ -618,6 +685,7 @@
     }
 
     .rich-text :global(.placeholder) {
+        display: block;
         position: relative;
         cursor: text;
     }
@@ -654,20 +722,24 @@
         max-width: 100%;
     }
     
-    .bottom :global(.iframe-container iframe) {
+    .rich-text :global(.iframe-container iframe) {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+        background: black;
+    }
+
+    .rich-text.focus :global(.iframe-container iframe) {
         pointer-events: none;
     }
 
-    .rich-text :global(.asdf) {
+    .rich-text :global(.highlight) {
         background: #ffff0080;
     }
 
-    .rich-text :global(.asdf.embed) {
+    .rich-text :global(.highlight.embed) {
         outline: 1px solid #ffff0080;
         pointer-events: none;
     }

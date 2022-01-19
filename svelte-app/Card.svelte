@@ -13,11 +13,11 @@
     <div class={"top " + categories[card.Type].color}>
         <h1>
             <span class="material-icons">{categories[card.Type].icon}</span>
-            {card.Title}
+            {card.Title || "(geen titel)"}
         </h1>
     </div>
     <div class="bottom">
-        {card.Description}
+        {card.Description || "(geen beschrijving)"}
     </div>
 </div>
 
@@ -33,6 +33,7 @@
         font-family: sans-serif;
         cursor: pointer;
         transition: .2s;
+        height: 100%;
     }
 
     .card:hover, .card:focus {
@@ -51,7 +52,7 @@
 
     .top h1 {
         margin: 8px;
-        font-size: 24px;
+        font-size: 1.5em;
         color: white;
         display: flex;
         align-items: center;

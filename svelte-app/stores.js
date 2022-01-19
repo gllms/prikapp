@@ -1,11 +1,14 @@
 import { writable } from "svelte/store";
 
-export const ageChoice = writable(localStorage.getItem("age"));
-ageChoice.subscribe(value => localStorage.setItem("age", value));
-export const freqChoice = writable(localStorage.getItem("freq"));
-freqChoice.subscribe(value => localStorage.setItem("freq", value));
-export const themeChoice = writable(localStorage.getItem("theme"));
+export const cards = writable([]);
+
+export const textSize = writable(localStorage.getItem("textSize") || "100%");
+textSize.subscribe(value => localStorage.setItem("textSize", value));
+export const themeChoice = writable(localStorage.getItem("theme") || "light");
 themeChoice.subscribe(value => localStorage.setItem("theme", value));
 
 export const overlayCount = writable(0);
 export const currentPage = writable("");
+
+export const token = writable(localStorage.getItem("token"));
+token.subscribe(value => localStorage.setItem("token", value));

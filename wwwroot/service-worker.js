@@ -14,7 +14,7 @@ self.addEventListener("install", (event) => {
                     "/build/bundle.css",
                     "/build/bundle.js",
                     "/cards.json",
-                    "/locations.json",
+                    "/build/locations.json",
                     "/postcodes.json"
                 ].map((url) => new Request(url, { cache: "reload" }))
             );
